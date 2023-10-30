@@ -7,15 +7,14 @@ public class Company {
     private String name;
     private List<Outlet> outlets = new ArrayList<Outlet>();
     private List<Product> products = new ArrayList<Product>();
-    private List<Ingredient> ingredients = new ArrayList<Ingredient>();
 
     public Company(String name) {
         this.name = name;
     }
 
-    //region BE.Outlet
+    //region Outlet
     public void addOutlet(String name) {
-        outlets.add(new Outlet(name));
+        outlets.add(new Outlet(this, name));
     }
 
     public Outlet getOutlet(int index) {
@@ -25,21 +24,46 @@ public class Company {
 
     //region Products
     public void addProduct(String name, int price) {
-        products.add(new Product(name, price));
+        Product newProduct = new Product(name, price);
+        products.add(newProduct);
+
+        for (Outlet outlet :
+                outlets) {
+            outlet.addProduct(newProduct);
+        }
     }
 
     public Product getProduct(int index) {
         return products.get(index);
     }
-    //endregion
 
-    //region Ingredients
-    public void addIngredient(String name) {
-        ingredients.add(new Ingredient(name));
-    }
-
-    public Ingredient getIngredient(int index) {
-        return ingredients.get(index);
+    public List<Product> getProducts() {
+        return products;
     }
     //endregion
+
+
+
+    public void printOutlets() {
+        for (Outlet outlet :
+                outlets) {
+            System.out.println("menu at " + outlet.getName());
+
+
+            for (Product product :
+                    outlet.getProducts()) {
+                System.out.println(product.getName() + product.getPrice());
+            }
+        }
+    }
+
+    public void printProducts() {
+        for (Product product :
+                products) {
+            System.out.println(product.getName());
+        }
+    }
+
+
+    }
 }
