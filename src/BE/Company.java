@@ -4,66 +4,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Company {
-    private String name;
-    private List<Outlet> outlets = new ArrayList<Outlet>();
-    private List<Product> products = new ArrayList<Product>();
+    private String companyName;
+    private final List<Outlet> outlets = new ArrayList<>();
+    private final List<CompanyProduct> companyProducts = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
-    public Company(String name) {
-        this.name = name;
+    public Company(String companyName) {
+        this.companyName = companyName;
     }
 
-    //region Outlet
-    public void addOutlet(String name) {
-        outlets.add(new Outlet(this, name));
+    //region Getter Setter
+
+    public String getCompanyName() {
+        return companyName;
+    }
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
-    public Outlet getOutlet(int index) {
-        return outlets.get(index);
-    }
-    //endregion
-
-    //region Products
-    public void addProduct(String name, int price) {
-        Product newProduct = new Product(name, price);
-        products.add(newProduct);
-
-        for (Outlet outlet :
-                outlets) {
-            outlet.addProduct(newProduct);
-        }
+    public List<Outlet> getOutlets() {
+        return outlets;
     }
 
-    public Product getProduct(int index) {
-        return products.get(index);
+    public List<User> getUsers() {
+        return users;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public List<CompanyProduct> getProducts() {
+        return companyProducts;
     }
+
     //endregion
 
 
 
+
+
+    /**
+     * TEMP print all from outlets list
+     */
     public void printOutlets() {
         for (Outlet outlet :
                 outlets) {
-            System.out.println("menu at " + outlet.getName());
+            System.out.println("menu at " + outlet.getOutletName());
 
 
-            for (Product product :
-                    outlet.getProducts()) {
-                System.out.println(product.getName() + product.getPrice());
+            for (CompanyProduct product :
+                    outlet.getAvailableProducts()) {
+                System.out.println(product.getProductName() + product.getPrice());
             }
         }
     }
 
+    /**
+     * TEMP print all from products list
+     */
     public void printProducts() {
-        for (Product product :
-                products) {
-            System.out.println(product.getName());
+        System.out.println("Products at " + companyName);
+        for (CompanyProduct product :
+                companyProducts) {
+            System.out.println(product.getProductName());
         }
     }
 
 
-    }
 }
+
