@@ -1,10 +1,15 @@
 package FE.Manager;
 
+import BE.JDBC;
+import FE.Kitchen.Kitchen;
 import FE.Manager.Outlets.*;
+import FE.POS.POS;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Manager extends JFrame {
 
@@ -73,8 +78,8 @@ public class Manager extends JFrame {
 //endregion
 
     private final BE.Manager user;
-    public Manager(int userId, int companyId) {
-        setTitle("Manager Resto Vision");
+    public Manager(int userId, int companyId, String username, String companyName) {
+        setTitle(String.format("Resto Vision %s (Manager) - %s", username, companyName));
         setContentPane(mainPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1366, 768);
@@ -126,6 +131,39 @@ public class Manager extends JFrame {
     }
 
     public static void main(String[] args) {
-        new Manager(1, 2);
+        String defaultEmail = "djokallaabadi@gmail.com";
+
+        JDBC.connect();
+        JDBC.query("SELECT users.id AS user_id, users.company_id, users.role, users.name AS username, companies.name AS company_name FROM users JOIN companies ON users.company_id=companies.id WHERE email='" + defaultEmail + "';");
+        ResultSet rs = JDBC.rs;
+        try {
+            rs.next();
+            int userId = rs.getInt("user_id");
+            int companyId = rs.getInt("company_id");
+            String role = rs.getString("role");
+            String username = rs.getString("username");
+            String companyName = rs.getString("company_name");
+            if (role.equals("manager")) {
+                new Manager(userId, companyId, username, companyName);
+            } else {
+                JDBC.query("SELECT * FROM pos_kitchen_outlet WHERE user_id=" + userId);
+                rs = JDBC.rs;
+                rs.next();
+                int outletId = rs.getInt("outlet_id");
+                JDBC.query("SELECT name FROM outlets WHERE id=" + outletId);
+                rs = JDBC.rs;
+                rs.next();
+                String outletName = rs.getString("name");
+                if (role.equals("kitchen")) {
+                    new Kitchen(userId, companyId, outletId, username, companyName, outletName);
+                } else if (role.equals("pos")) {
+                    new POS(userId, companyId, outletId, username, companyName, outletName);
+                }
+            }
+
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+        }
+        JDBC.disconnect();
     }
 }
