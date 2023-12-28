@@ -42,7 +42,7 @@ public class Login extends JFrame {
                         int companyId = rs.getInt("company_id");
                         String role = rs.getString("role");
                         if (role.equals("manager")) {
-                            new Manager();
+                            new Manager(userId, companyId);
                         } else {
                             JDBC.query("SELECT * FROM pos_kitchen_outlet WHERE user_id=" + userId);
                             rs = JDBC.rs;

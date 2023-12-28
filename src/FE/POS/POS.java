@@ -79,6 +79,6 @@ public class POS extends JFrame {
 
     }
     public static void main(String[] args) {
-        new POS(0, 0, 0);
+        new POS(3, 2, 2);
     }
 }

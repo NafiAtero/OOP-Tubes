@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Manager extends JFrame {
+
+//region SWING COMPONENTS
     private JPanel mainPanel;
     private JTabbedPane tabbedPane1;
     private JTabbedPane tabbedPane2;
@@ -68,14 +70,17 @@ public class Manager extends JFrame {
     private JComboBox userOutletComboBox;
     private JComboBox roleComboBox;
     private JButton changePasswordButton;
+//endregion
 
-    public Manager() {
+    private final BE.Manager user;
+    public Manager(int userId, int companyId) {
         setTitle("Manager Resto Vision");
         setContentPane(mainPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1366, 768);
         setLocationRelativeTo(null);
         setVisible(true);
+        user = new BE.Manager(userId, companyId);
         addOutletButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -121,6 +126,6 @@ public class Manager extends JFrame {
     }
 
     public static void main(String[] args) {
-        new Manager();
+        new Manager(1, 2);
     }
 }

@@ -60,6 +60,6 @@ public class Kitchen extends JFrame {
     }
 
     public static void main(String[] args) {
-        new Kitchen(0,0,0);
+        new Kitchen(2,2,2);
     }
 }
