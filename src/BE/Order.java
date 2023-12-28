@@ -10,7 +10,7 @@ public class Order {
     private int orderId, outletId;
     private String tableName;
     private Timestamp orderTime;
-    private final List<OrderProduct> orderProducts = new ArrayList<>();
+    private List<OrderProduct> orderProducts = new ArrayList<>();
     public Order(int orderId, int outletId, String tableName, Timestamp orderTime) {
         this.orderId = orderId;
         this.outletId = outletId;
@@ -56,6 +56,9 @@ public class Order {
         return orderProducts;
     }
 
+    public void setOrderProducts(List<OrderProduct> orderProducts) {
+        this.orderProducts = orderProducts;
+    }
 //endregion
 
     public void addItem(int productId, int companyId, String name, int price, int orderProductId, int outletProductId, int quantity) {

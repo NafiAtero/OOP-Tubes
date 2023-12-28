@@ -46,51 +46,13 @@ public class POS extends User {
 
 //region READ
     public void getActiveOrdersData() {
-        activeOrders.clear();
-        ResultSet rs = POSDAO.getActiveOrdersData(outletId);
-        try {
-            while (rs.next()) {
-                int orderId = rs.getInt("id");
-                String tableName = rs.getString("table_name");
-                Order order = new Order();
-                activeOrders.add(order);
-                getOrderProductsData(orderId, order);
-                //order.setOrderProducts(orderProducts);
-            }
-        } catch (SQLException err) {
-            throw new RuntimeException(err);
+        activeOrders = POSDAO.getActiveOrdersData(outletId);
+        for (Order order : activeOrders) {
+            POSDAO.getOrderProductsData(order, companyId);
         }
     }
     public void getOutletProductsData() {
-        outletProducts.clear();
-        ResultSet rs = POSDAO.getOutletProductsData(outletId);
-        try {
-            while (rs.next()) {
-                int outletProductId = rs.getInt("product_id");
-                int productId = rs.getInt("product_id");
-                OutletProduct outletProduct = new OutletProduct(outletProductId, outletId, productId, companyId, "name", 10000);
-                outletProducts.add(outletProduct);
-            }
-        } catch (SQLException err) {
-            throw new RuntimeException(err);
-        }
-    }
-    private void getOrderProductsData(int orderId, Order order) {
-        orderProducts.clear();
-        ResultSet rs = POSDAO.getOrderProductsData(orderId);
-        try {
-            while (rs.next()) {
-                int productId = rs.getInt("product_id");
-                String name = rs.getString("name");
-                int price = rs.getInt("price");
-                int orderProductId = rs.getInt("id");
-                int outletProductId = rs.getInt("outlet_product_id");
-                int quantity = rs.getInt("quantity");
-                order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);
-            }
-        } catch (SQLException err) {
-            throw new RuntimeException(err);
-        }
+        outletProducts = POSDAO.getOutletProductsData(outletId, companyId);
     }
 //endregion
 
