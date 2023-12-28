@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+// todo password verification, manager constructor
 public class Login extends JFrame {
     private JLabel Title;
     private JTextField emailTextField;
@@ -32,27 +32,33 @@ public class Login extends JFrame {
                 JDBC.connect();
                 JDBC.query("SELECT * FROM users WHERE email='" + emailTextField.getText() + "';");
                 ResultSet rs = JDBC.rs;
-                JDBC.disconnect();
                 try {
-                    System.out.println(1);
-                    if (!rs.getString("password").equals(passwordField.getPassword())) {
-                        System.out.println(2);
+                    rs.next();
+                    if (rs.getString("password").equals(passwordField.getPassword())) {
                         passwordField.setText("");
                         errorLabel.setText("Wrong password");
                     } else {
-                        System.out.println(3);
-                        if (rs.getString("role").equals("manager")) {
-                            System.out.println(4);
+                        int userId = rs.getInt("id");
+                        int companyId = rs.getInt("company_id");
+                        String role = rs.getString("role");
+                        if (role.equals("manager")) {
                             new Manager();
-                        } else if (rs.getString("role").equals("kitchen")) {
-                            new Kitchen(0,0,0);
-                        } else if (rs.getString("role").equals("pos")) {
-                            new POS(0, 0, 0);
+                        } else {
+                            JDBC.query("SELECT * FROM pos_kitchen_outlet WHERE user_id=" + userId);
+                            rs = JDBC.rs;
+                            int outletId = rs.getInt("outlet_id");
+                            if (role.equals("kitchen")) {
+                                new Kitchen(userId,companyId,outletId);
+                            } else if (role.equals("pos")) {
+                                new POS(userId, companyId, outletId);
+                            }
                         }
                     }
                 } catch (SQLException err) {
+                    System.out.println(err.getMessage());
                     errorLabel.setText("User not found");
                 }
+                JDBC.disconnect();
             }
         });
     }
