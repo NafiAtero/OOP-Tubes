@@ -1,9 +1,12 @@
 package BE;
 
+import java.util.List;
+
 public class Product {
     private final int productId, companyId;
     private String name;
     private int price;
+    private List<Item> ingredients;
 
     public Product(int productId, int companyId, String name, int price) {
         this.productId = productId;
@@ -33,8 +36,9 @@ public class Product {
     }
 //endregion
 
-//region Setter Getter
-//endregion
+    public void addIngredient(int id, int companyId, String name, String unit, int perishableItemId, float amount) {
+        ingredients.add(new Ingredient(id, companyId, name, unit, perishableItemId, amount));
+    }
 
 //region Setter Getter
 //endregion

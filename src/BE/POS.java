@@ -4,7 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-// todo DAO join table query
+/*
+    todo
+    Order class datetime + constructor
+    get outlet product join table query
+ */
+
 public class POS extends User {
     private final int outletId;
     private List<Order> activeOrders;
@@ -45,10 +50,11 @@ public class POS extends User {
         ResultSet rs = POSDAO.getActiveOrdersData(outletId);
         try {
             while (rs.next()) {
+                int orderId = rs.getInt("id");
                 String tableName = rs.getString("table_name");
                 Order order = new Order();
                 activeOrders.add(order);
-                //getOrderProductsData(orderId);
+                getOrderProductsData(orderId, order);
                 //order.setOrderProducts(orderProducts);
             }
         } catch (SQLException err) {
@@ -69,14 +75,18 @@ public class POS extends User {
             throw new RuntimeException(err);
         }
     }
-    public void getOrderProductsData(int orderId) {
+    private void getOrderProductsData(int orderId, Order order) {
         orderProducts.clear();
         ResultSet rs = POSDAO.getOrderProductsData(orderId);
         try {
             while (rs.next()) {
-                int outletProductId = rs.getInt("product_id");
                 int productId = rs.getInt("product_id");
-                //orderProducts.add(new OrderProduct(productId, companyId, "name", 10000, ));
+                String name = rs.getString("name");
+                int price = rs.getInt("price");
+                int orderProductId = rs.getInt("id");
+                int outletProductId = rs.getInt("outlet_product_id");
+                int quantity = rs.getInt("quantity");
+                order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);
             }
         } catch (SQLException err) {
             throw new RuntimeException(err);
@@ -96,11 +106,13 @@ public class POS extends User {
     /**
      * Create on active_order_product
      * @param orderId
-     * @param productId
+     * @param outletProductId
      */
-    public void addOrderProduct(int orderId, int productId) {
+    public void addOrderProduct(int orderId, int outletProductId) {
         // todo DAO add to active_order_product
-        getOrderProductsData();
+        POSDAO.addOrderProduct(orderId, outletProductId);
+        getActiveOrdersData();
+        //getOrderProductsData();
     }
 //endregion
 
@@ -121,7 +133,8 @@ public class POS extends User {
      */
     public void updateOrderProduct(int orderProductId, int quantity) {
         POSDAO.updateOrderProduct(orderProductId, quantity);
-        getOrderProductsData();
+        getActiveOrdersData();
+        //getOrderProductsData();
     }
     /**
      * Moves data from active_order to finished_order
@@ -148,7 +161,8 @@ public class POS extends User {
      */
     public void deleteOrderProduct(int orderProductId) {
         POSDAO.deleteOrderProduct(orderProductId);
-        getOrderProductsData();
+        getActiveOrdersData();
+        //getOrderProductsData();
     }
 //endregion
 }

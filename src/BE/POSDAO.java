@@ -20,7 +20,7 @@ public class POSDAO {
         return JDBC.rs;
     }
     public static ResultSet getOrderProductsData(int orderId) {
-        String sql = "SELECT * FROM outlet_product WHERE outlet_id="+orderId;
+        String sql = "SELECT outlet_product.product_id, products.company_id, products.name, products.price, outlet_product.price_override, active_order_product.id, active_order_product.outlet_product_id, active_order_product.quantity FROM ((active_order_product JOIN outlet_product ON active_order_product.outlet_product_id = outlet_product.id) JOIN products ON outlet_product.product_id = products.id) WHERE active_order_id="+orderId;
         JDBC.connect();
         JDBC.query(sql);
         JDBC.disconnect();
@@ -48,9 +48,9 @@ public class POSDAO {
         JDBC.update(sql);
         JDBC.disconnect();
     }
-    public static void addOrderProduct(int orderId, int outletProductId, int quantity) {
+    public static void addOrderProduct(int orderId, int outletProductId) {
         String sql = String.format("INSERT INTO active_order_product (active_order_id, outlet_product_id , quantity) VALUES (%d, %d, %d)",
-                orderId, outletProductId, quantity);
+                orderId, outletProductId, 0);
         JDBC.connect();
         JDBC.update(sql);
         JDBC.disconnect();

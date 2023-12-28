@@ -1,0 +1,33 @@
+##done
+
+
+##maybe
+Ingredient
+Item
+
+
+##todo
+CompletedOrder
+Order   datetime
+Outlet  addItem, addProduct, addOrder
+OutletItem
+
+
+###Manager
+CompletedOrder
+Outlet  ->  OutletProduct
+            OutletItem
+Product ->  Ingredient
+Item    PerishableItem  ->  Ingredient
+        RawItem
+User
+
+
+###Kitchen
+Order   ->  OrderProduct    ->  Ingredient
+PerishableItem  ->  Ingredient
+RawItem
+
+###POS
+Order   ->  OrderProduct
+OutletProduct
