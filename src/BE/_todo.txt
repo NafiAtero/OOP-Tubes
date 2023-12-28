@@ -4,11 +4,11 @@
 ##maybe
 Ingredient
 Item
+Order
 
 
 ##todo
 CompletedOrder
-Order   datetime
 Outlet  addItem, addProduct, addOrder
 OutletItem
 
