@@ -31,6 +31,8 @@ public class JDBC {
             stmt = conn.prepareStatement(sql);
             stmt.executeUpdate();
         } catch (SQLException e) {
+            System.out.println("UPDATE ERROR");
+            System.out.println("sql: " + sql);
             System.out.println(e.getMessage());
         }
     }
@@ -40,6 +42,8 @@ public class JDBC {
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
         } catch (SQLException e) {
+            System.out.println("QUERY ERROR");
+            System.out.println("sql: " + sql);
             System.out.println(e.getMessage());
         }
     }

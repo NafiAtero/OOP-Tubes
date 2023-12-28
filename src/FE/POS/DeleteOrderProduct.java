@@ -7,11 +7,13 @@ public class DeleteOrderProduct extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private POS parent;
 
-    public DeleteOrderProduct() {
+    public DeleteOrderProduct(POS parent) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        this.parent = parent;
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -42,7 +44,8 @@ public class DeleteOrderProduct extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        parent.getUser().deleteOrderProduct(parent.getSelectedOrderProduct().getOrderProductId());
+        parent.refreshTables();
         dispose();
     }
 
@@ -51,10 +54,10 @@ public class DeleteOrderProduct extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         DeleteOrderProduct dialog = new DeleteOrderProduct();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }

@@ -80,7 +80,7 @@ public class POSDAO {
 
 //region UPDATE
     public static void addOrder(int outletId, String tableName) {
-        String sql = String.format("INSERT INTO active_orders (outlet_id, table_name) VALUES (%d , '%s')", outletId, tableName);
+        String sql = String.format("INSERT INTO active_orders (outlet_id, table_name, order_time) VALUES (%d , '%s', CURRENT_TIMESTAMP)", outletId, tableName);
         JDBC.connect();
         JDBC.update(sql);
         JDBC.disconnect();
@@ -99,7 +99,7 @@ public class POSDAO {
         JDBC.disconnect();
     }
     public static void addOrderProduct(int orderId, int outletProductId) {
-        String sql = String.format("INSERT INTO active_order_product (active_order_id, outlet_product_id , quantity) VALUES (%d, %d, %d)",
+        String sql = String.format("INSERT INTO active_order_product (active_order_id, outlet_product_id , quantity, delivered) VALUES (%d, %d, %d, 0)",
                 orderId, outletProductId, 0);
         JDBC.connect();
         JDBC.update(sql);

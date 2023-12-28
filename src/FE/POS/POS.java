@@ -1,16 +1,11 @@
 package FE.POS;
 
-import BE.JDBC;
-import BE.Order;
-import BE.OrderProduct;
-import BE.OutletProduct;
+import BE.*;
 import FE.Kitchen.Kitchen;
 import FE.Manager.Manager;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
@@ -38,7 +33,15 @@ public class POS extends JFrame {
 //endregion
 
     private final BE.POS user;
-    //private TableModel menuModel, activeOrdersModel, orderProductsModel;
+    private final POS parent = this;
+    private OutletProduct selectedProduct;
+    private Order selectedOrder;
+    private OrderProduct selectedOrderProduct;
+    private int selectedProductIndex, selectedOrderIndex, selectedOrderProductIndex;
+    private MenuModel menuModel;
+    private ActiveOrdersModel activeOrdersModel;
+    private OrderProductsModel orderProductsModel;
+
     public POS(int userId, int companyId, int outletId, String username, String companyName, String outletName) {
         setTitle(String.format("Resto Vision - %s (POS) @ %s - %s", username, outletName, companyName));
         setContentPane(mainPanel);
@@ -48,7 +51,19 @@ public class POS extends JFrame {
         setVisible(true);
 
         user = new BE.POS(userId, companyId, outletId);
-        updateTables();
+        //updateTables();
+        user.getActiveOrdersData();
+        user.getOutletProductsData();
+
+        menuModel = new MenuModel(user.getOutletProducts());
+        availableProductsTable.setModel(menuModel);
+
+        activeOrdersModel = new ActiveOrdersModel(user.getActiveOrders());
+        activeOrdersTable.setModel(activeOrdersModel);
+
+        orderProductsModel = new OrderProductsModel(user.getOrderProducts());
+        orderProductsTable.setModel(orderProductsModel);
+
 
 //region BUTTON
         finishOrderButton.addActionListener(new ActionListener() {
@@ -63,7 +78,7 @@ public class POS extends JFrame {
         deleteOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CancelOrder dialog = new CancelOrder();
+                CancelOrder dialog = new CancelOrder(parent);
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
@@ -72,7 +87,7 @@ public class POS extends JFrame {
         deleteOrderProductButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DeleteOrderProduct dialog = new DeleteOrderProduct();
+                DeleteOrderProduct dialog = new DeleteOrderProduct(parent);
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
@@ -81,7 +96,7 @@ public class POS extends JFrame {
         addOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AddOrder dialog = new AddOrder();
+                AddOrder dialog = new AddOrder(parent);
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
@@ -96,7 +111,71 @@ public class POS extends JFrame {
         refreshListButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateTables();
+                refreshTables();
+            }
+        });
+        addProductToOrderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedOrder != null && selectedProduct != null) {
+                    user.addOrderProduct(selectedOrder.getOrderId(), selectedProduct.getOutletProductId());
+                    //selectedProductIndex = 0;
+                    updateLists();
+                }
+            }
+        });
+        saveEditOrderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                user.updateOrder(selectedOrder.getOrderId(), orderTableNameTextField.getText());
+                updateLists();
+            }
+        });
+        saveEditOrderProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                user.updateOrderProduct(selectedOrderProduct.getOrderProductId(), (Integer) orderProductQuantitySpinner.getValue());
+            }
+        });
+
+//endregion
+
+//region TABLE SELECTION
+        availableProductsTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!activeOrdersTable.getSelectionModel().isSelectionEmpty()) {
+                selectedProductIndex = availableProductsTable.convertRowIndexToModel(availableProductsTable.getSelectedRow());
+                selectedProduct = user.getOutletProducts().get(selectedProductIndex);
+                if (selectedProduct != null) {
+                    addProductToOrderButton.setEnabled(true);
+                    addProductToOrderButton.setText("Add "+selectedProduct.getName()+" To Order");
+                } else {
+                    addProductToOrderButton.setEnabled(false);
+                    addProductToOrderButton.setText("Add Product To Order");
+                    selectedProduct = null;
+                }
+            }
+        });
+        activeOrdersTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!activeOrdersTable.getSelectionModel().isSelectionEmpty()) {
+                selectedOrderIndex = activeOrdersTable.convertRowIndexToModel(activeOrdersTable.getSelectedRow());
+                selectedOrder = user.getActiveOrders().get(selectedOrderIndex);
+                selectedOrderProductIndex = -1;
+                selectedOrderProduct = null;
+                if (selectedOrder != null) {
+                    orderTableNameTextField.setText(selectedOrder.getTableName());
+
+                    orderProductsModel = new OrderProductsModel(selectedOrder.getOrderProducts());
+                    orderProductsTable.setModel(orderProductsModel);
+                }
+            }
+        });
+        orderProductsTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!orderProductsTable.getSelectionModel().isSelectionEmpty()) {
+                selectedOrderProductIndex = orderProductsTable.convertRowIndexToModel(orderProductsTable.getSelectedRow());
+                selectedOrderProduct = selectedOrder.getOrderProducts().get(selectedOrderProductIndex);
+                if (selectedOrderProduct != null) {
+                    orderProductQuantitySpinner.setValue(selectedOrderProduct.getQuantity());
+                }
             }
         });
 //endregion
@@ -106,7 +185,10 @@ public class POS extends JFrame {
 //region TABLES
     private static class MenuModel extends AbstractTableModel {
         private final String[] COLUMNS = {"Name", "Price"};
-        private static List<OutletProduct> list;
+        private List<OutletProduct> list;
+        public MenuModel(List<OutletProduct> list) {
+            this.list = list;
+        }
         @Override
         public int getRowCount() {
             return list.size();
@@ -133,13 +215,13 @@ public class POS extends JFrame {
                 return Object.class;
             }
         }
-        public static void setList(List<OutletProduct> list) {
-            MenuModel.list = list;
-        }
     }
     private static class ActiveOrdersModel extends AbstractTableModel {
         private final String[] COLUMNS = {"Table Name", "Order Time", "Total"};
-        private static List<Order> list;
+        private List<Order> list;
+        public ActiveOrdersModel(List<Order> list) {
+            this.list = list;
+        }
         @Override
         public int getRowCount() {
             return list.size();
@@ -167,13 +249,13 @@ public class POS extends JFrame {
                 return Object.class;
             }
         }
-        public static void setList(List<Order> list) {
-            ActiveOrdersModel.list = list;
-        }
     }
     private static class OrderProductsModel extends AbstractTableModel {
         private final String[] COLUMNS = {"Name", "Price", "Quantity"};
-        private static List<OrderProduct> list;
+        private List<OrderProduct> list;
+        public OrderProductsModel(List<OrderProduct> list) {
+            this.list = list;
+        }
         @Override
         public int getRowCount() {
             return list.size();
@@ -201,31 +283,57 @@ public class POS extends JFrame {
                 return Object.class;
             }
         }
-        public static void setList(List<OrderProduct> list) {
-            OrderProductsModel.list = list;
-        }
+    }
+    public void resetProductSelection() {
+        selectedProduct = null;
+        selectedProductIndex = -1;
+    }
+    public void resetOrderSelection() {
+        selectedOrder = null;
+        selectedOrderIndex = -1;
+    }
+    public void resetOrderProductSelection() {
+        selectedOrderProduct = null;
+        selectedOrderProductIndex = -1;
     }
 //endregion
 
 
-    private void updateTables() {
+    private void updateLists() {
         user.getActiveOrdersData();
         user.getOutletProductsData();
+        resetProductSelection();
+        resetOrderSelection();
+        resetOrderProductSelection();
+        menuModel.fireTableDataChanged();
+        activeOrdersModel.fireTableDataChanged();
+        orderProductsModel.fireTableDataChanged();
 
-        MenuModel.setList(user.getOutletProducts());
-        MenuModel menuModel = new MenuModel();
+        System.out.println("prduct: " + selectedProductIndex + "/" + user.getOutletProducts().size());
+        System.out.println("aorder: " + selectedOrderIndex + "/" + user.getActiveOrders().size());
+        System.out.println("ordpro: " + selectedOrderProductIndex + "/" + user.getOrderProducts().size());
+    }
+    public void refreshTables() {
+        updateLists();
+
+        menuModel = new MenuModel(user.getOutletProducts());
         availableProductsTable.setModel(menuModel);
 
-        ActiveOrdersModel.setList(user.getActiveOrders());
-        ActiveOrdersModel activeOrdersModel = new ActiveOrdersModel();
+        activeOrdersModel = new ActiveOrdersModel(user.getActiveOrders());
         activeOrdersTable.setModel(activeOrdersModel);
 
-        OrderProductsModel.setList(user.getOrderProducts());
-        OrderProductsModel orderProductsModel = new OrderProductsModel();
+        orderProductsModel = new OrderProductsModel(selectedOrder.getOrderProducts());
         orderProductsTable.setModel(orderProductsModel);
+    }
+    private void changeSelectedOrder() {
+
     }
 
     public BE.POS getUser() { return user; }
+    public Order getSelectedOrder() { return selectedOrder; }
+
+    public OrderProduct getSelectedOrderProduct() { return selectedOrderProduct; }
+
     public static void main(String[] args) {
         String defaultEmail = "djopos@gmail.com";
 

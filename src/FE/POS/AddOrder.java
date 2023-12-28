@@ -8,11 +8,13 @@ public class AddOrder extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JTextField tableNameTextField;
+    private final POS parent;
 
-    public AddOrder() {
+    public AddOrder(POS parent) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        this.parent = parent;
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -43,7 +45,8 @@ public class AddOrder extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        parent.getUser().addOrder(tableNameTextField.getText());
+        parent.refreshTables();
         dispose();
     }
 
@@ -52,10 +55,10 @@ public class AddOrder extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         AddOrder dialog = new AddOrder();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }
