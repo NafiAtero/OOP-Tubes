@@ -50,6 +50,7 @@ public class POS extends User {
         for (Order order : activeOrders) {
             POSDAO.getOrderProductsData(order, companyId);
         }
+        orderProducts = activeOrders.get(0).getOrderProducts();
     }
     public void getOutletProductsData() {
         outletProducts = POSDAO.getOutletProductsData(outletId, companyId);

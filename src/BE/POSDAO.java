@@ -11,11 +11,11 @@ public class POSDAO {
 
 //region QUERY
     public static List<Order> getActiveOrdersData(int outletId) {
-        ResultSet rs = JDBC.rs;
         List<Order> activeOrders = new ArrayList<>();
         String sql = "SELECT * FROM active_orders WHERE outlet_id="+outletId;
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
         try {
             while (rs.next()) {
                 int orderId = rs.getInt("id");
@@ -25,22 +25,26 @@ public class POSDAO {
                 activeOrders.add(order);
             }
         } catch (SQLException err) {
+            System.out.println(err.getMessage());
             throw new RuntimeException(err);
         }
         JDBC.disconnect();
         return activeOrders;
     }
     public static List<OutletProduct> getOutletProductsData(int outletId, int companyId) {
-        ResultSet rs = JDBC.rs;
         List<OutletProduct> outletProducts = new ArrayList<>();
-        String sql = "SELECT * FROM outlet_product WHERE outlet_id="+outletId;
+        String sql = "SELECT outlet_product.id AS outlet_product_id, outlet_product.product_id, products.price, outlet_product.price_override, products.name FROM outlet_product JOIN products ON outlet_product.product_id=products.id WHERE outlet_id="+outletId;
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
         try {
             while (rs.next()) {
-                int outletProductId = rs.getInt("product_id");
+                int outletProductId = rs.getInt("outlet_product_id");
                 int productId = rs.getInt("product_id");
-                OutletProduct outletProduct = new OutletProduct(outletProductId, outletId, productId, companyId, "name", 10000);
+                int price = rs.getInt("price");
+                if (rs.getInt("price_override") > 0) price = rs.getInt("price_override");
+                String name = rs.getString("name");
+                OutletProduct outletProduct = new OutletProduct(outletProductId, outletId, productId, companyId, name, price);
                 outletProducts.add(outletProduct);
             }
         } catch (SQLException err) {
@@ -50,17 +54,18 @@ public class POSDAO {
         return outletProducts;
     }
     public static List<OrderProduct> getOrderProductsData(Order order, int companyId) {
-        ResultSet rs = JDBC.rs;
         List<OrderProduct> orderProducts = new ArrayList<>();
-        String sql = "SELECT outlet_product.product_id, products.company_id, products.name, products.price, outlet_product.price_override, active_order_product.id, active_order_product.outlet_product_id, active_order_product.quantity FROM ((active_order_product JOIN outlet_product ON active_order_product.outlet_product_id = outlet_product.id) JOIN products ON outlet_product.product_id = products.id) WHERE active_order_id="+order.getOrderId();
+        String sql = "SELECT outlet_product.product_id, products.company_id, products.name, products.price, outlet_product.price_override, active_order_product.id AS order_product_id, active_order_product.outlet_product_id, active_order_product.quantity FROM ((active_order_product JOIN outlet_product ON active_order_product.outlet_product_id = outlet_product.id) JOIN products ON outlet_product.product_id = products.id) WHERE active_order_id="+order.getOrderId();
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
         try {
             while (rs.next()) {
                 int productId = rs.getInt("product_id");
                 String name = rs.getString("name");
                 int price = rs.getInt("price");
-                int orderProductId = rs.getInt("id");
+                if (rs.getInt("price_override") > 0) price = rs.getInt("price_override");
+                int orderProductId = rs.getInt("order_product_id");
                 int outletProductId = rs.getInt("outlet_product_id");
                 int quantity = rs.getInt("quantity");
                 order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);

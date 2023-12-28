@@ -1,18 +1,25 @@
 package FE.POS;
 
 import BE.JDBC;
+import BE.Order;
+import BE.OrderProduct;
+import BE.OutletProduct;
 import FE.Kitchen.Kitchen;
 import FE.Manager.Manager;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 // todo move dialog pack setLocationRelativeTo
 public class POS extends JFrame {
+
 //region SWING COMPONENTS
     private JPanel mainPanel;
     private JButton finishOrderButton;
@@ -31,7 +38,7 @@ public class POS extends JFrame {
 //endregion
 
     private final BE.POS user;
-    private TableModel menu, activeOrders, orderProducts;
+    //private TableModel menuModel, activeOrdersModel, orderProductsModel;
     public POS(int userId, int companyId, int outletId, String username, String companyName, String outletName) {
         setTitle(String.format("Resto Vision - %s (POS) @ %s - %s", username, outletName, companyName));
         setContentPane(mainPanel);
@@ -41,6 +48,9 @@ public class POS extends JFrame {
         setVisible(true);
 
         user = new BE.POS(userId, companyId, outletId);
+        updateTables();
+
+//region BUTTON
         finishOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -89,12 +99,133 @@ public class POS extends JFrame {
                 updateTables();
             }
         });
+//endregion
+
     }
+
+//region TABLES
+    private static class MenuModel extends AbstractTableModel {
+        private final String[] COLUMNS = {"Name", "Price"};
+        private static List<OutletProduct> list;
+        @Override
+        public int getRowCount() {
+            return list.size();
+        }
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) return list.get(rowIndex).getName();
+            else if (columnIndex == 1) return list.get(rowIndex).getPrice();
+            else return "-";
+        }
+        @Override
+        public String getColumnName(int column) {
+            return COLUMNS[column];
+        }
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (getValueAt(0, columnIndex) != null) {
+                return getValueAt(0, columnIndex).getClass();
+            } else {
+                return Object.class;
+            }
+        }
+        public static void setList(List<OutletProduct> list) {
+            MenuModel.list = list;
+        }
+    }
+    private static class ActiveOrdersModel extends AbstractTableModel {
+        private final String[] COLUMNS = {"Table Name", "Order Time", "Total"};
+        private static List<Order> list;
+        @Override
+        public int getRowCount() {
+            return list.size();
+        }
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) return list.get(rowIndex).getTableName();
+            else if (columnIndex == 1) return list.get(rowIndex).getOrderTime();
+            else if (columnIndex == 2) return list.get(rowIndex).getTotal();
+            else return "-";
+        }
+        @Override
+        public String getColumnName(int column) {
+            return COLUMNS[column];
+        }
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (getValueAt(0, columnIndex) != null) {
+                return getValueAt(0, columnIndex).getClass();
+            } else {
+                return Object.class;
+            }
+        }
+        public static void setList(List<Order> list) {
+            ActiveOrdersModel.list = list;
+        }
+    }
+    private static class OrderProductsModel extends AbstractTableModel {
+        private final String[] COLUMNS = {"Name", "Price", "Quantity"};
+        private static List<OrderProduct> list;
+        @Override
+        public int getRowCount() {
+            return list.size();
+        }
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) return list.get(rowIndex).getName();
+            else if (columnIndex == 1) return list.get(rowIndex).getPrice();
+            else if (columnIndex == 2) return list.get(rowIndex).getQuantity();
+            else return "-";
+        }
+        @Override
+        public String getColumnName(int column) {
+            return COLUMNS[column];
+        }
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (getValueAt(0, columnIndex) != null) {
+                return getValueAt(0, columnIndex).getClass();
+            } else {
+                return Object.class;
+            }
+        }
+        public static void setList(List<OrderProduct> list) {
+            OrderProductsModel.list = list;
+        }
+    }
+//endregion
+
+
     private void updateTables() {
         user.getActiveOrdersData();
         user.getOutletProductsData();
 
+        MenuModel.setList(user.getOutletProducts());
+        MenuModel menuModel = new MenuModel();
+        availableProductsTable.setModel(menuModel);
+
+        ActiveOrdersModel.setList(user.getActiveOrders());
+        ActiveOrdersModel activeOrdersModel = new ActiveOrdersModel();
+        activeOrdersTable.setModel(activeOrdersModel);
+
+        OrderProductsModel.setList(user.getOrderProducts());
+        OrderProductsModel orderProductsModel = new OrderProductsModel();
+        orderProductsTable.setModel(orderProductsModel);
     }
+
+    public BE.POS getUser() { return user; }
     public static void main(String[] args) {
         String defaultEmail = "djopos@gmail.com";
 
