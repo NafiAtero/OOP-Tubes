@@ -33,7 +33,7 @@ public class POS extends JFrame {
     private final BE.POS user;
     private TableModel menu, activeOrders, orderProducts;
     public POS(int userId, int companyId, int outletId, String username, String companyName, String outletName) {
-        setTitle(String.format("Resto Vision %s (POS) @ %s - %s", username, outletName, companyName));
+        setTitle(String.format("Resto Vision - %s (POS) @ %s - %s", username, outletName, companyName));
         setContentPane(mainPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1366, 768);

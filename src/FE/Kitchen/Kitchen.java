@@ -29,7 +29,7 @@ public class Kitchen extends JFrame {
     private final BE.Kitchen user;
 
     public Kitchen(int userId, int companyId, int outletId, String username, String companyName, String outletName) {
-        setTitle(String.format("Resto Vision %s (Kitchen) @ %s - %s", username, outletName, companyName));
+        setTitle(String.format("Resto Vision - %s (Kitchen) @ %s - %s", username, outletName, companyName));
         setContentPane(mainPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1366, 768);

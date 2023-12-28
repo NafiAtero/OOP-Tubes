@@ -79,7 +79,7 @@ public class Manager extends JFrame {
 
     private final BE.Manager user;
     public Manager(int userId, int companyId, String username, String companyName) {
-        setTitle(String.format("Resto Vision %s (Manager) - %s", username, companyName));
+        setTitle(String.format("Resto Vision - %s (Manager) - %s", username, companyName));
         setContentPane(mainPanel);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1366, 768);
