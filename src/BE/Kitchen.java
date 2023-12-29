@@ -55,20 +55,20 @@ public class Kitchen extends User {
 
 //region UPDATE
     public void createPerishableItem(int perishableItemId, float amount) {
-        //KitchenDAO.createPerishableItem(perishableItemId, amount);
+        KitchenDAO.createPerishableItem(perishableItemId, amount);
         getOutletItemsData();
     }
     public void updateItem(int productId, boolean perishable, float stock) {
         KitchenDAO.updateItem(productId, perishable, stock);
         getOutletItemsData();
     }
-    public void deliverProduct(int orderProductId, int quantity) {
-        KitchenDAO.deliverProduct(orderProductId, quantity);
+    public void deliverProduct(OrderProduct orderProduct) {
+        KitchenDAO.deliverProduct(orderProduct);
         getActiveOrdersData();
     }
-    public void undoDeliverProduct(int orderProductId, int quantity) {
-        KitchenDAO.undoDeliverProduct(orderProductId, quantity);
-        getActiveOrdersData();
+    public void clearPerishableItems() {
+        KitchenDAO.clearPerishableItems(outletId);
+        getOutletItemsData();
     }
 //endregion
 

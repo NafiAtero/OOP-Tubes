@@ -7,12 +7,13 @@ public class ClearPerishableItemStock extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private final Kitchen parent;
 
-    public ClearPerishableItemStock() {
+    public ClearPerishableItemStock(Kitchen parent) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-
+        this.parent = parent;
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -42,7 +43,8 @@ public class ClearPerishableItemStock extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        parent.getUser().clearPerishableItems();
+        parent.updateTables();
         dispose();
     }
 
@@ -51,10 +53,10 @@ public class ClearPerishableItemStock extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         ClearPerishableItemStock dialog = new ClearPerishableItemStock();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }

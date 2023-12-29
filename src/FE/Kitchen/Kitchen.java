@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Kitchen extends JFrame {
@@ -19,7 +20,6 @@ public class Kitchen extends JFrame {
     private JButton finishOrderButton;
     private JTable orderProductsTable;
     private JButton deliverOrderProductButton;
-    private JButton undoDeliverOrderProductButton;
     private JTable inventoryTable;
     private JButton addRawItemStockButton;
     private JButton addPerishableItemStockButton;
@@ -53,7 +53,7 @@ public class Kitchen extends JFrame {
 
         activeOrdersModel = new ActiveOrdersModel(user.getActiveOrders());
         activeOrdersTable.setModel(activeOrdersModel);
-        orderProductsModel = new OrderProductsModel(user.getActiveOrders().get(0).getOrderProducts());
+        orderProductsModel = new OrderProductsModel(new ArrayList<>());
         orderProductsTable.setModel(orderProductsModel);
         outletItemsModel = new OutletItemsModel(user.getOutletItems());
         inventoryTable.setModel(outletItemsModel);
@@ -71,7 +71,7 @@ public class Kitchen extends JFrame {
         addPerishableItemStockButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AddPerishableItemStock dialog = new AddPerishableItemStock();
+                AddPerishableItemStock dialog = new AddPerishableItemStock(parent);
                 //dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
@@ -80,38 +80,98 @@ public class Kitchen extends JFrame {
         clearPerishableItemStockButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ClearPerishableItemStock dialog = new ClearPerishableItemStock();
+                ClearPerishableItemStock dialog = new ClearPerishableItemStock(parent);
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
+            }
+        });
+        deliverOrderProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedOrderProduct != null && !selectedOrderProduct.isDelivered()) {
+                    user.deliverProduct(selectedOrderProduct);
+                    deliverOrderProductButton.setText("Deliver Product");
+                    updateTables();
+                    orderProductsModel.setList(selectedOrder.getOrderProducts());
+                    //orderProductsModel.setList(selectedOrder.getOrderProducts());
+                    orderProductsModel.fireTableDataChanged();
+                }
+            }
+        });
+        saveEditItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedOutletItem != null) {
+                    float stock = 0;
+                    Object o = itemStockSpinner.getValue();
+                    if (o != null) {
+                        if (o instanceof Number) {
+                            stock = ((Number) o).floatValue();
+                        }
+                    }
+                    user.updateItem(selectedOutletItem.getItemId(), selectedOutletItem.isPerishable(), stock);
+                    updateTables();
+                }
+            }
+        });
+        refreshListButton1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
+            }
+        });
+        refreshListButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
             }
         });
 //endregion
 
 //region TABLE SELECTION
 
+        // Orders Table
         activeOrdersTable.getSelectionModel().addListSelectionListener(e -> {
             if (!activeOrdersTable.getSelectionModel().isSelectionEmpty()) {
                 selectedOrderIndex = activeOrdersTable.convertRowIndexToModel(activeOrdersTable.getSelectedRow());
                 selectedOrder = user.getActiveOrders().get(selectedOrderIndex);
                 if (selectedOrder != null) {
                     orderProductsModel.setList(selectedOrder.getOrderProducts());
+                    selectedOrderProduct = null;
+                    deliverOrderProductButton.setText("Deliver Product");
                     orderProductsModel.fireTableDataChanged();
                 }
             }
         });
+        // Order Products Table
         orderProductsTable.getSelectionModel().addListSelectionListener(e -> {
             if (!orderProductsTable.getSelectionModel().isSelectionEmpty()) {
                 selectedOrderProductIndex = orderProductsTable.convertRowIndexToModel(orderProductsTable.getSelectedRow());
                 selectedOrderProduct = selectedOrder.getOrderProducts().get(selectedOrderProductIndex);
                 if (selectedOrderProduct != null) {
-                    //orderProductQuantitySpinner.setValue(selectedOrderProduct.getQuantity());
+                    deliverOrderProductButton.setText("Deliver "+selectedOrderProduct.getName());
+                } else {
+                    deliverOrderProductButton.setText("Deliver Product");
+                }
+            }
+        });
+        // Inventory Table
+        inventoryTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!inventoryTable.getSelectionModel().isSelectionEmpty()) {
+                selectedOutletItemIndex = inventoryTable.convertRowIndexToModel(inventoryTable.getSelectedRow());
+                selectedOutletItem = user.getOutletItems().get(selectedOutletItemIndex);
+                if (selectedOutletItem != null) {
+                    itemStockSpinner.setValue(selectedOutletItem.getAmount());
+                } else {
+                    itemStockSpinner.setValue(null);
                 }
             }
         });
 
-
 //endregion
+
+
     }
 
 //region TABLE
@@ -231,7 +291,12 @@ public class Kitchen extends JFrame {
 
 
     public void updateTables() {
+
         user.getActiveOrdersData();
+        if (selectedOrder != null && selectedOrder.getOrderProducts() != null) {
+            orderProductsModel.setList(selectedOrder.getOrderProducts());
+        }
+        orderProductsModel.fireTableDataChanged();
         activeOrdersModel.setList(user.getActiveOrders());
         activeOrdersModel.fireTableDataChanged();
 
@@ -241,6 +306,12 @@ public class Kitchen extends JFrame {
 
     }
 //endregion
+
+
+    public BE.Kitchen getUser() {
+        return user;
+    }
+
     public static void main(String[] args) {
         String defaultEmail = "djokitchen@gmail.com";
 

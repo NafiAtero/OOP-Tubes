@@ -39,7 +39,7 @@ public class KitchenDAO {
     }
     public static List<OrderProduct> getOrderProductsData(Order order, int companyId) {
         List<OrderProduct> orderProducts = new ArrayList<>();
-        String sql = "SELECT outlet_product.id AS outlet_product_id, outlet_product.product_id, products.price, outlet_product.price_override, active_order_product.id AS order_product_id, products.name, quantity FROM (outlet_product JOIN products ON outlet_product.product_id=products.id) JOIN active_order_product ON active_order_product.outlet_product_id=outlet_product.id WHERE active_order_id="+order.getOrderId();
+        String sql = "SELECT outlet_product.id AS outlet_product_id, outlet_product.product_id, products.price, outlet_product.price_override, active_order_product.id AS order_product_id, products.name, quantity, delivered FROM (outlet_product JOIN products ON outlet_product.product_id=products.id) JOIN active_order_product ON active_order_product.outlet_product_id=outlet_product.id WHERE active_order_id="+order.getOrderId();
         JDBC.connect();
         JDBC.query(sql);
         ResultSet rs = JDBC.rs;
@@ -52,8 +52,9 @@ public class KitchenDAO {
                 int orderProductId = rs.getInt("order_product_id");
                 int outletProductId = rs.getInt("outlet_product_id");
                 int quantity = rs.getInt("quantity");
-                order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);
-                orderProducts.add(new OrderProduct(productId, companyId, name, price, orderProductId, order.getOrderId(), outletProductId, quantity, false));
+                boolean delivered = rs.getBoolean("delivered");
+                //order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);
+                orderProducts.add(new OrderProduct(productId, companyId, name, price, orderProductId, order.getOrderId(), outletProductId, quantity, delivered));
             }
         } catch (SQLException err) {
             System.out.println(err.getMessage());
@@ -112,20 +113,12 @@ public class KitchenDAO {
 //endregion
 
 //region UPDATE
-    public static void deliverProduct(int orderProductId, int quantity) {
-        String sql = String.format("UPDATE active_order_product SET active_order_product=%b WHERE id=%d", true, orderProductId);
+    public static void deliverProduct(OrderProduct orderProduct) {
+        String sql = String.format("UPDATE active_order_product SET delivered=%b WHERE id=%d", true, orderProduct.getOrderProductId());
         JDBC.connect();
         JDBC.update(sql);
-        // remove ingredients
-        // SELECT amount FROM outlet_raw_item WHERE id IN product_perishable_ingredient - amount(product_perishable_ingredient) * quantity
-        JDBC.disconnect();
-    }
-    public static void undoDeliverProduct(int orderProductId, int quantity) {
-        String sql = String.format("UPDATE active_order_product SET active_order_product=%b WHERE id=%d", false, orderProductId);
-        JDBC.connect();
-        JDBC.update(sql);
-        // unremove ingredients
-        // SELECT amount FROM outlet_raw_item WHERE id IN product_perishable_ingredient + amount(product_perishable_ingredient) * quantity
+        JDBC.update("UPDATE outlet_raw_item JOIN product_raw_ingredient ON outlet_raw_item.raw_item_id=product_raw_ingredient.raw_item_id SET outlet_raw_item.amount=outlet_raw_item.amount-(product_raw_ingredient.amount*"+orderProduct.getQuantity()+") WHERE product_raw_ingredient.product_id="+orderProduct.getProductId());
+        JDBC.update("UPDATE outlet_perishable_item JOIN product_perishable_ingredient ON outlet_perishable_item.perishable_item_id=product_perishable_ingredient.perishable_item_id SET outlet_perishable_item.amount=outlet_perishable_item.amount-(product_perishable_ingredient.amount*"+orderProduct.getQuantity()+") WHERE product_perishable_ingredient.product_id="+orderProduct.getProductId());
         JDBC.disconnect();
     }
     public static void updateItem(int productId, boolean perishable, float amount) {
@@ -138,15 +131,13 @@ public class KitchenDAO {
         JDBC.disconnect();
     }
     public static void clearPerishableItems(int outletId) {
-        String sql = String.format("UPDATE outlet_perishable_item SET amount=%f WHERE id=%d", 0.0, outletId);
+        String sql = String.format("UPDATE outlet_perishable_item SET amount=%f WHERE outlet_id=%d", 0.0, outletId);
         JDBC.connect();
         JDBC.update(sql);
         JDBC.disconnect();
     }
     public static void createPerishableItem(int perishableItemId, float createAmount) {
-        // + outlet_perishable_item stock
-        // SELECT amount FROM outlet_raw_item WHERE id IN perishable_item_ingredient - amount(perishable_item_ingredients) * createAmount
-        String sql = "";
+        String sql = String.format("UPDATE outlet_perishable_item JOIN (outlet_raw_item JOIN perishable_item_ingredient ON outlet_raw_item.raw_item_id=perishable_item_ingredient.raw_item_id ) ON perishable_item_ingredient.perishable_item_id=outlet_perishable_item.perishable_item_id SET outlet_raw_item.amount=outlet_raw_item.amount-(perishable_item_ingredient.amount*%f), outlet_perishable_item.amount=outlet_perishable_item.amount+(perishable_item_ingredient.amount*%f) WHERE perishable_item_ingredient.perishable_item_id=%d",createAmount,createAmount,perishableItemId);
         JDBC.connect();
         JDBC.update(sql);
         JDBC.disconnect();
