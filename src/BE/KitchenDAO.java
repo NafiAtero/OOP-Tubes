@@ -1,6 +1,11 @@
 package BE;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 // todo remove/unremove ingredients on deliver/undeliver
 public class KitchenDAO {
     /*
@@ -11,34 +16,98 @@ public class KitchenDAO {
      */
 
 //region QUERY
-    public static ResultSet getActiveOrdersData(int outletId) {
+    public static List<Order> getActiveOrdersData(int outletId) {
+        List<Order> activeOrders = new ArrayList<>();
         String sql = "SELECT * FROM active_orders WHERE outlet_id="+outletId;
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                int orderId = rs.getInt("id");
+                String tableName = rs.getString("table_name");
+                Timestamp orderTime = rs.getTimestamp("order_time");
+                Order order = new Order(orderId, outletId, tableName, orderTime);
+                activeOrders.add(order);
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
         JDBC.disconnect();
-        return JDBC.rs;
+        return activeOrders;
     }
-    public static ResultSet getOrderProductsData(int outletId) {
-        String sql = "SELECT * FROM outlet_product WHERE id="+outletId;
+    public static List<OrderProduct> getOrderProductsData(Order order, int companyId) {
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        String sql = "SELECT outlet_product.id AS outlet_product_id, outlet_product.product_id, products.price, outlet_product.price_override, active_order_product.id AS order_product_id, products.name, quantity FROM (outlet_product JOIN products ON outlet_product.product_id=products.id) JOIN active_order_product ON active_order_product.outlet_product_id=outlet_product.id WHERE outlet_id="+order.getOutletId();
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                int productId = rs.getInt("product_id");
+                String name = rs.getString("name");
+                int price = rs.getInt("price");
+                if (rs.getInt("price_override") > 0) price = rs.getInt("price_override");
+                int orderProductId = rs.getInt("order_product_id");
+                int outletProductId = rs.getInt("outlet_product_id");
+                int quantity = rs.getInt("quantity");
+                order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
         JDBC.disconnect();
-        return JDBC.rs;
+        return orderProducts;
     }
-    public static ResultSet getOutletPerishableItemsData(int outletId) {
-        String sql = "SELECT * FROM outlet_perishable_item WHERE outlet_id="+outletId;
+    public static List<OutletItem> getOutletPerishableItemsData(int outletId) {
+        List<OutletItem> perishableItems = new ArrayList<>();
+        String sql = "SELECT perishable_items.id AS perishable_item_id, perishable_items.company_id, outlet_perishable_item.id AS outlet_item_id, perishable_items.name, unit, amount FROM outlet_perishable_item JOIN perishable_items ON outlet_perishable_item.perishable_item_id=perishable_items.id WHERE outlet_id="+outletId;
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                int perishableItemId = rs.getInt("perishable_item_id");
+                int companyId = rs.getInt("company_id");
+                int outletItemId = rs.getInt("outlet_item_id");
+                String name = rs.getString("name");
+                String unit = rs.getString("unit");
+                float amount = rs.getFloat("amount");
+                perishableItems.add(new OutletItem(perishableItemId, companyId, name, unit, outletItemId, outletId, amount, true));
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
         JDBC.disconnect();
-        return JDBC.rs;
+        return perishableItems;
     }
-    public static ResultSet getOutletRawItemsData(int outletId) {
-        String sql = "SELECT * FROM outlet_raw_item WHERE outlet_id="+outletId;
+    public static List<OutletItem> getOutletRawItemsData(int outletId) {
+        List<OutletItem> rawItems = new ArrayList<>();
+        String sql = "SELECT raw_items.id AS raw_item_id, raw_items.company_id, outlet_raw_item.id AS outlet_item_id, raw_items.name, unit, amount FROM outlet_raw_item JOIN raw_items ON outlet_raw_item.raw_item_id=raw_items.id WHERE outlet_id="+outletId;
         JDBC.connect();
         JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                int rawItemId = rs.getInt("raw_item_id");
+                int companyId = rs.getInt("company_id");
+                int outletItemId = rs.getInt("outlet_item_id");
+                String name = rs.getString("name");
+                String unit = rs.getString("unit");
+                float amount = rs.getFloat("amount");
+                rawItems.add(new OutletItem(rawItemId, companyId, name, unit, outletItemId, outletId, amount, false));
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
         JDBC.disconnect();
-        return JDBC.rs;
+        return rawItems;
     }
+
 //endregion
 
 //region UPDATE

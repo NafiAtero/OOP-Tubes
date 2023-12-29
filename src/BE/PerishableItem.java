@@ -6,8 +6,8 @@ import java.util.List;
 public class PerishableItem extends Item {
     private List<Ingredient> ingredientList;
 
-    public PerishableItem(int id, int companyId, String name, String unit) {
-        super(id, companyId, name, unit);
+    public PerishableItem(int itemId, int companyId, String name, String unit) {
+        super(itemId, companyId, name, unit);
         ingredientList = new ArrayList<>();
     }
 

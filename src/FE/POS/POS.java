@@ -296,7 +296,6 @@ public class POS extends JFrame {
         selectedOrderProduct = null;
         selectedOrderProductIndex = -1;
     }
-//endregion
 
 
     private void updateLists() {
@@ -328,6 +327,7 @@ public class POS extends JFrame {
     private void changeSelectedOrder() {
 
     }
+//endregion
 
     public BE.POS getUser() { return user; }
     public Order getSelectedOrder() { return selectedOrder; }

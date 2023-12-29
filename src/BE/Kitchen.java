@@ -1,12 +1,13 @@
 package BE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Kitchen extends User {
     private final int outletId;
-    private List<Order> activeOrders;
-    private List<OrderProduct> orderProducts;
-    private List<OutletItem> outletItems;
+    private List<Order> activeOrders = new ArrayList<>();
+    private List<OrderProduct> orderProducts = new ArrayList<>();
+    private List<OutletItem> outletItems = new ArrayList<>();
     public Kitchen(int userId, int companyId, int outletId) {
         super(userId, companyId);
         this.outletId = outletId;
@@ -37,9 +38,19 @@ public class Kitchen extends User {
 //endregion
 
 //region READ
-    public void getActiveOrdersData() {}
-    public void getOrderProductsData() {}
-    public void getOutletItemsData() {}
+    public void getActiveOrdersData() {
+        activeOrders = KitchenDAO.getActiveOrdersData(outletId);
+        for (Order order : activeOrders) {
+            KitchenDAO.getOrderProductsData(order, companyId);
+        }
+    }
+    public void getOutletItemsData() {
+        if (outletItems != null) {
+            outletItems.clear();
+            outletItems.addAll(KitchenDAO.getOutletPerishableItemsData(outletId));
+            outletItems.addAll(KitchenDAO.getOutletRawItemsData(outletId));
+        }
+    }
 //endregion
 
 //region UPDATE
