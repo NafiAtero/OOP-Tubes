@@ -96,10 +96,6 @@ public class Kitchen extends JFrame {
                 selectedOrder = user.getActiveOrders().get(selectedOrderIndex);
                 if (selectedOrder != null) {
                     orderProductsModel.setList(selectedOrder.getOrderProducts());
-                    selectedOrderProduct = null;
-                    selectedOrderProductIndex = -1;
-                    System.out.println(selectedOrder.getOrderProducts().size());
-
                     orderProductsModel.fireTableDataChanged();
                 }
             }

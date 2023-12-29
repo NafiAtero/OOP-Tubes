@@ -41,7 +41,7 @@ public class Kitchen extends User {
     public void getActiveOrdersData() {
         activeOrders = KitchenDAO.getActiveOrdersData(outletId);
         for (Order order : activeOrders) {
-            KitchenDAO.getOrderProductsData(order, companyId);
+            order.setOrderProducts(KitchenDAO.getOrderProductsData(order, companyId));
         }
     }
     public void getOutletItemsData() {

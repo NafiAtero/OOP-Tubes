@@ -39,7 +39,7 @@ public class KitchenDAO {
     }
     public static List<OrderProduct> getOrderProductsData(Order order, int companyId) {
         List<OrderProduct> orderProducts = new ArrayList<>();
-        String sql = "SELECT outlet_product.id AS outlet_product_id, outlet_product.product_id, products.price, outlet_product.price_override, active_order_product.id AS order_product_id, products.name, quantity FROM (outlet_product JOIN products ON outlet_product.product_id=products.id) JOIN active_order_product ON active_order_product.outlet_product_id=outlet_product.id WHERE outlet_id="+order.getOutletId();
+        String sql = "SELECT outlet_product.id AS outlet_product_id, outlet_product.product_id, products.price, outlet_product.price_override, active_order_product.id AS order_product_id, products.name, quantity FROM (outlet_product JOIN products ON outlet_product.product_id=products.id) JOIN active_order_product ON active_order_product.outlet_product_id=outlet_product.id WHERE active_order_id="+order.getOrderId();
         JDBC.connect();
         JDBC.query(sql);
         ResultSet rs = JDBC.rs;
@@ -53,6 +53,7 @@ public class KitchenDAO {
                 int outletProductId = rs.getInt("outlet_product_id");
                 int quantity = rs.getInt("quantity");
                 order.addItem(productId, companyId, name, price, orderProductId, outletProductId, quantity);
+                orderProducts.add(new OrderProduct(productId, companyId, name, price, orderProductId, order.getOrderId(), outletProductId, quantity, false));
             }
         } catch (SQLException err) {
             System.out.println(err.getMessage());
