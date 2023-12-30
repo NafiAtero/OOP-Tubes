@@ -1,5 +1,7 @@
 package FE.POS;
 
+import BE.Order;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -7,11 +9,15 @@ public class ConfirmFinishOrder extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private POS parent;
+    private Order order;
 
-    public ConfirmFinishOrder() {
+    public ConfirmFinishOrder(POS parent, Order order) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        this.parent = parent;
+        this.order = order;
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -42,7 +48,8 @@ public class ConfirmFinishOrder extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        parent.getUser().finishOrder(order);
+        parent.updateTables();
         dispose();
     }
 
@@ -51,10 +58,10 @@ public class ConfirmFinishOrder extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         ConfirmFinishOrder dialog = new ConfirmFinishOrder();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }

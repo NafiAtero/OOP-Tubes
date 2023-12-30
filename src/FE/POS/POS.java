@@ -70,7 +70,7 @@ public class POS extends JFrame {
         finishOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ConfirmFinishOrder dialog = new ConfirmFinishOrder();
+                ConfirmFinishOrder dialog = new ConfirmFinishOrder(parent, selectedOrder);
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);

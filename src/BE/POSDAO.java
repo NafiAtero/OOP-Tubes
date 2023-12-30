@@ -106,7 +106,7 @@ public class POSDAO {
         int completedOrderId;
         JDBC.connect();
         JDBC.update(sql);
-        JDBC.query("SELECT SELECT LAST_INSERT_ID()");
+        JDBC.query("SELECT LAST_INSERT_ID()");
         ResultSet rs = JDBC.rs;
         try {
             rs.next();
@@ -119,7 +119,7 @@ public class POSDAO {
         return completedOrderId;
     }
     public static void addCompletedOrderProduct(int completedOrderId, String name, int price, int quantity) {
-        String sql = String.format("INSERT INTO completed_orders (completed_order_id  , product_name , price, quantity) VALUES (%d , '%s' ,%d, %d)", completedOrderId, name, price, quantity);
+        String sql = String.format("INSERT INTO completed_order_product (completed_order_id  , product_name , price, quantity) VALUES (%d , '%s' ,%d, %d)", completedOrderId, name, price, quantity);
         JDBC.connect();
         JDBC.update(sql);
         JDBC.disconnect();
