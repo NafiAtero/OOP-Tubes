@@ -17,7 +17,7 @@ public class ManagerDAO {
         ResultSet rs = JDBC.rs;
         try {
             while (rs.next()) {
-                int outletId = rs.getInt("outlet_id");
+                int outletId = rs.getInt("id");
                 //int companyId = rs.getInt("company_id");
                 String name = rs.getString("name");
                 String address = rs.getString("address");
@@ -242,7 +242,7 @@ public class ManagerDAO {
 //region COMPANY
     public static List<User> getUserData(int companyId) {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT users.id AS user_id, company_id, pos_kitchen_outlet.outlet_id, name, email, role FROM users LEFT JOIN pos_kitchen_outlet on users.id=pos_kitchen_outlet.user_id WHERE company_id="+companyId;
+        String sql = "SELECT users.id AS user_id, users.company_id, pos_kitchen_outlet.outlet_id, users.name AS username, email, role, outlets.name AS outlet_name FROM outlets RIGHT JOIN (users LEFT JOIN pos_kitchen_outlet ON users.id=pos_kitchen_outlet.user_id) ON outlets.id=pos_kitchen_outlet.outlet_id WHERE users.company_id="+companyId;
         JDBC.connect();
         JDBC.query(sql);
         ResultSet rs = JDBC.rs;
@@ -251,10 +251,11 @@ public class ManagerDAO {
                 int userId = rs.getInt("user_id");
                 //int companyId = rs.getInt("company_id");
                 int outletId = rs.getInt("outlet_id");
-                String name = rs.getString("name");
+                String name = rs.getString("username");
                 String email = rs.getString("email");
                 String role = rs.getString("role");
-                User user = new User(userId, companyId, outletId, name, email, role);
+                String outletName = rs.getString("outlet_name");
+                User user = new User(userId, companyId, outletId, name, email, role, outletName);
                 users.add(user);
             }
         } catch (SQLException err) {

@@ -989,7 +989,7 @@
                     </constraints>
                     <properties>
                       <labelFor value="dc92b"/>
-                      <text value="Username"/>
+                      <text value="Name"/>
                     </properties>
                   </component>
                 </children>

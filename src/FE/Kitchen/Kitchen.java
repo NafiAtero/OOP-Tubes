@@ -175,7 +175,6 @@ public class Kitchen extends JFrame {
     }
 
 //region TABLE
-
     private static class ActiveOrdersModel extends AbstractTableModel {
         private final String[] COLUMNS = {"Table Name", "Order Time"};
         private List<Order> list;

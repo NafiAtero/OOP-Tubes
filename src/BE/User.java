@@ -2,15 +2,16 @@ package BE;
 
 public class User {
     private final int userId, companyId, outletId;
-    private String name, email, role;
+    private String name, email, role, outletName;
 
-    public User(int userId, int companyId, int outletId, String name, String email, String role) {
+    public User(int userId, int companyId, int outletId, String name, String email, String role, String outletName) {
         this.userId = userId;
         this.companyId = companyId;
         this.outletId = outletId;
         this.name = name;
         this.email = email;
         this.role = role;
+        this.outletName = outletName;
     }
 
     public int getUserId() {
@@ -47,5 +48,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getOutletName() {
+        return outletName;
+    }
+
+    public void setOutletName(String outletName) {
+        this.outletName = outletName;
     }
 }
