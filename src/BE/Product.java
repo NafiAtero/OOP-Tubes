@@ -1,12 +1,13 @@
 package BE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Product {
     private final int productId, companyId;
     private String name;
     private int price;
-    private List<Item> ingredients;
+    private final List<Ingredient> ingredients = new ArrayList<>();
 
     public Product(int productId, int companyId, String name, int price) {
         this.productId = productId;
@@ -34,11 +35,11 @@ public class Product {
     public void setPrice(int price) {
         this.price = price;
     }
-//endregion
-
-    public void addIngredient(int id, int companyId, String name, String unit, int perishableItemId, float amount) {
-        ingredients.add(new Ingredient(id, companyId, name, unit, perishableItemId, amount));
+    public List<Ingredient> getIngredients() {
+        return ingredients;
     }
+    //endregion
+
 
 //region Setter Getter
 //endregion

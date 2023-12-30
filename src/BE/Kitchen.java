@@ -3,7 +3,7 @@ package BE;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Kitchen extends User {
+public class Kitchen extends UserController {
     private final int outletId;
     private List<Order> activeOrders = new ArrayList<>();
     private List<OrderProduct> orderProducts = new ArrayList<>();

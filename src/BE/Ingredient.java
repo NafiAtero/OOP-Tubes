@@ -1,13 +1,25 @@
 package BE;
 
 public class Ingredient extends Item {
-    protected final int perishableItemId;
-    protected float amount;
+    /*
+    itemId = id in items tables
+    ingredientId = id in ingredients tables
+    productOrPerishableItemId = id of product/perishable item to be made
+     */
+    private final int ingredientId, productOrPerishableItemId;
+    private float amount;
+    private boolean isPerishable;
 
-    public Ingredient(int itemId, int companyId, String name, String unit, int perishableItemId, float amount) {
+    public Ingredient(int itemId, int companyId, String name, String unit, int ingredientId, int productOrPerishableItemId, float amount, boolean isPerishable) {
         super(itemId, companyId, name, unit);
-        this.perishableItemId = perishableItemId;
+        this.ingredientId = ingredientId;
+        this.productOrPerishableItemId = productOrPerishableItemId;
         this.amount = amount;
+        this.isPerishable = isPerishable;
+    }
+
+    public int getIngredientId() {
+        return ingredientId;
     }
 
     public float getAmount() {
@@ -18,7 +30,15 @@ public class Ingredient extends Item {
         this.amount = amount;
     }
 
-    public int getPerishableItemId() {
-        return perishableItemId;
+    public int getProductOrPerishableItemId() {
+        return productOrPerishableItemId;
+    }
+
+    public boolean isPerishable() {
+        return isPerishable;
+    }
+
+    public void setPerishable(boolean perishable) {
+        isPerishable = perishable;
     }
 }

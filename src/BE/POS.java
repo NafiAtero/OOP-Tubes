@@ -1,7 +1,5 @@
 package BE;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 /*
@@ -10,7 +8,7 @@ import java.util.List;
     get outlet product join table query
  */
 
-public class POS extends User {
+public class POS extends UserController {
     private final int outletId;
     private List<Order> activeOrders;
     private List<OutletProduct> outletProducts;
