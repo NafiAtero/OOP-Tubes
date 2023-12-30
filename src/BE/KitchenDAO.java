@@ -121,6 +121,29 @@ public class KitchenDAO {
         JDBC.update("UPDATE outlet_perishable_item JOIN product_perishable_ingredient ON outlet_perishable_item.perishable_item_id=product_perishable_ingredient.perishable_item_id SET outlet_perishable_item.amount=outlet_perishable_item.amount-(product_perishable_ingredient.amount*"+orderProduct.getQuantity()+") WHERE product_perishable_ingredient.product_id="+orderProduct.getProductId());
         JDBC.disconnect();
     }
+    public static int addCompletedOrder(int companyId, int outletId, String tableName) {
+        String sql = String.format("INSERT INTO completed_orders (company_id , outlet_id , table_name, order_completed_time) VALUES (%d , %d ,'%s', CURRENT_TIMESTAMP)", companyId, outletId, tableName);
+        int completedOrderId;
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.query("SELECT LAST_INSERT_ID()");
+        ResultSet rs = JDBC.rs;
+        try {
+            rs.next();
+            completedOrderId = rs.getInt("LAST_INSERT_ID()");
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
+        JDBC.disconnect();
+        return completedOrderId;
+    }
+    public static void addCompletedOrderProduct(int completedOrderId, String name, int price, int quantity) {
+        String sql = String.format("INSERT INTO completed_order_product (completed_order_id  , product_name , price, quantity) VALUES (%d , '%s' ,%d, %d)", completedOrderId, name, price, quantity);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
     public static void updateItem(int productId, boolean perishable, float amount) {
         String sql, table;
         if (perishable) table = "outlet_perishable_item";

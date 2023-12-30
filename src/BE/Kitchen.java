@@ -66,6 +66,14 @@ public class Kitchen extends UserController {
         KitchenDAO.deliverProduct(orderProduct);
         getActiveOrdersData();
     }
+    public void finishOrder(Order order) {
+        POSDAO.deleteOrder(order.getOrderId());
+        int completedOrderId = POSDAO.addCompletedOrder(companyId, outletId, order.getTableName());
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            POSDAO.addCompletedOrderProduct(completedOrderId, orderProduct.getName(), orderProduct.getPrice(), orderProduct.getQuantity());
+        }
+        getActiveOrdersData();
+    }
     public void clearPerishableItems() {
         KitchenDAO.clearPerishableItems(outletId);
         getOutletItemsData();
