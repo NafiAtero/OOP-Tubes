@@ -1,5 +1,6 @@
 package BE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -10,9 +11,8 @@ import java.util.List;
 
 public class POS extends UserController {
     private final int outletId;
-    private List<Order> activeOrders;
-    private List<OutletProduct> outletProducts;
-    private List<OrderProduct> orderProducts;
+    private final List<Order> activeOrders = new ArrayList<>();
+    private final List<OutletProduct> outletProducts = new ArrayList<>();
     public POS(int userId, int companyId, int outletId) {
         super(userId, companyId);
         this.outletId = outletId;
@@ -25,103 +25,64 @@ public class POS extends UserController {
     public List<Order> getActiveOrders() {
         return activeOrders;
     }
-    public void setActiveOrders(List<Order> activeOrders) {
-        this.activeOrders = activeOrders;
-    }
     public List<OutletProduct> getOutletProducts() {
         return outletProducts;
-    }
-    public void setOutletProducts(List<OutletProduct> outletProducts) {
-        this.outletProducts = outletProducts;
-    }
-    public List<OrderProduct> getOrderProducts() {
-        return orderProducts;
-    }
-    public void setOrderProducts(List<OrderProduct> orderProducts) {
-        this.orderProducts = orderProducts;
     }
 //endregion
 
 //region READ
     public void getActiveOrdersData() {
-        activeOrders = POSDAO.getActiveOrdersData(outletId);
+        activeOrders.clear();
+        activeOrders.addAll(POSDAO.getActiveOrdersData(outletId));
         for (Order order : activeOrders) {
-            POSDAO.getOrderProductsData(order, companyId);
+            order.getOrderProducts().clear();
+            order.getOrderProducts().addAll(POSDAO.getOrderProductsData(order.getOrderId(), companyId));
         }
-        orderProducts = activeOrders.get(0).getOrderProducts();
     }
     public void getOutletProductsData() {
-        outletProducts = POSDAO.getOutletProductsData(outletId, companyId);
+        outletProducts.clear();
+        outletProducts.addAll(POSDAO.getOutletProductsData(outletId, companyId));
     }
 //endregion
 
 //region CREATE
-    /**
-     * Create on active_orders
-     * @param tableName
-     */
     public void addOrder(String tableName) {
         POSDAO.addOrder(outletId, tableName);
         getActiveOrdersData();
     }
-    /**
-     * Create on active_order_product
-     * @param orderId
-     * @param outletProductId
-     */
-    public void addOrderProduct(int orderId, int outletProductId) {
-        // todo DAO add to active_order_product
-        POSDAO.addOrderProduct(orderId, outletProductId);
+    public void addOrderProduct(Order order, OutletProduct outletProduct) {
+        POSDAO.addOrderProduct(order.getOrderId(), outletProduct.getOutletProductId());
         getActiveOrdersData();
-        //getOrderProductsData();
     }
 //endregion
 
 //region UPDATE
-    /**
-     * Edit on active_orders
-     * @param orderId
-     * @param tableName new table name
-     */
-    public void updateOrder(int orderId, String tableName) {
-        POSDAO.updateOrder(orderId, tableName);
+    public void updateOrder(Order order, String newTableName) {
+        POSDAO.updateOrder(order.getOrderId(), newTableName);
         getActiveOrdersData();
     }
-    /**
-     * Update active_order_product on edit
-     * @param orderProductId
-     * @param quantity new quantity
-     */
-    public void updateOrderProduct(int orderProductId, int quantity) {
-        POSDAO.updateOrderProduct(orderProductId, quantity);
+     public void updateOrderProduct(OrderProduct orderProduct, int quantity) {
+        POSDAO.updateOrderProduct(orderProduct.getOrderProductId(), quantity);
         getActiveOrdersData();
-        //getOrderProductsData();
     }
-    /**
-     * Moves data from active_order to finished_order
-     * @param orderId
-     */
-    public void finishOrder(int orderId) {
-        POSDAO.finishOrder(orderId);
+    public void finishOrder(Order order) {
+        POSDAO.deleteOrder(order.getOrderId());
+        int completedOrderId = POSDAO.addCompletedOrder(companyId, outletId, order.getTableName());
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            POSDAO.addCompletedOrderProduct(completedOrderId, orderProduct.getName(), orderProduct.getPrice(), orderProduct.getQuantity());
+        }
         getActiveOrdersData();
     }
 //endregion
 
 //region DELETE
-    /**
-     * Deletes from active_orders
-     * @param orderId
-     */
-    public void deleteOrder(int orderId) {
-        POSDAO.deleteOrder(orderId);
+     public void deleteOrder(Order order) {
+        POSDAO.deleteOrder(order.getOrderId());
         getActiveOrdersData();
     }
-    /**
-     * Deletes from active_order_product
-     * @param orderProductId
-     */
-    public void deleteOrderProduct(int orderProductId) {
-        POSDAO.deleteOrderProduct(orderProductId);
+
+    public void deleteOrderProduct(OrderProduct orderProduct) {
+        POSDAO.deleteOrderProduct(orderProduct.getOrderProductId());
         getActiveOrdersData();
         //getOrderProductsData();
     }
