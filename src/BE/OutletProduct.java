@@ -28,9 +28,4 @@ public class OutletProduct extends Product {
     }
 //endregion
 
-//region Setter Getter
-//endregion
-
-//region Setter Getter
-//endregion
 }

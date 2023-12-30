@@ -67,8 +67,8 @@ public class Manager extends UserController {
         perishableItems.clear();
         perishableItems.addAll(ManagerDAO.getPerishableItemData(companyId));
         for (PerishableItem perishableItem : perishableItems) {
-            perishableItem.getIngredientList().clear();
-            perishableItem.getIngredientList().addAll(ManagerDAO.getPerishableItemIngredientData(perishableItem.getItemId()));
+            perishableItem.getIngredients().clear();
+            perishableItem.getIngredients().addAll(ManagerDAO.getPerishableItemIngredientData(perishableItem.getItemId()));
         }
         items.clear();
         items.addAll(rawItems);

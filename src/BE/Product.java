@@ -41,6 +41,4 @@ public class Product {
     //endregion
 
 
-//region Setter Getter
-//endregion
 }

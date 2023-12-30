@@ -1,6 +1,6 @@
 package BE;
 
-public class Item {
+public abstract class Item {
     protected final int itemId, companyId;
     protected String name, unit;
 

@@ -68,7 +68,7 @@ public class Order {
         }
         return total;
     }
-    public void addItem(int productId, int companyId, String name, int price, int orderProductId, int outletProductId, int quantity) {
+    /*public void addItem(int productId, int companyId, String name, int price, int orderProductId, int outletProductId, int quantity) {
         orderProducts.add(new OrderProduct(productId, companyId, name, price, orderProductId, orderId, outletProductId, quantity, false));
-    }
+    }*/
 }

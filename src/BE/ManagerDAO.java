@@ -275,11 +275,11 @@ public class ManagerDAO {
         JDBC.connect();
         JDBC.update(sql);
         if (addAllProducts) {
-            JDBC.query("LAST_INSERT_ID()");
+            JDBC.query("SELECT LAST_INSERT_ID()");
             ResultSet rs = JDBC.rs;
             try {
                 rs.next();
-                int outletId = rs.getInt(0);
+                int outletId = rs.getInt("LAST_INSERT_ID()");
 
                 sql = String.format("SELECT * FROM products WHERE company_id=%d", companyId);
                 JDBC.query(sql);

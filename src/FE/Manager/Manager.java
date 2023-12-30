@@ -78,9 +78,18 @@ public class Manager extends JFrame {
     private JComboBox userOutletComboBox;
     private JComboBox roleComboBox;
     private JButton changePasswordButton;
+    private JButton refreshTablesButton;
+    private JButton refreshTablesButton1;
+    private JButton refreshTablesButton2;
+    private JButton refreshTablesButton3;
+    private JButton refreshTablesButton4;
+    private JButton refreshTablesButton5;
 //endregion
 
     private final BE.Manager user;
+    private final Manager parent;
+
+//region SELECTED OBJECTS
     private Outlet selectedOutlet;
     private OutletProduct selectedOutletProduct;
     private OutletItem selectedOutletItem;
@@ -90,15 +99,19 @@ public class Manager extends JFrame {
     private PerishableItem selectedPerishableItem;
     private Ingredient selectedPerishableItemIngredient;
     private User selectedUser;
-    private OutletsModel outletsModel;
-    private OutletProductsModel outletProductsModel;
-    private OutletItemsModel outletItemsModel;
-    private ProductsModel productsModel;
-    private ProductIngredientsModel productIngredientsModel;
-    private RawItemsModel rawItemsModel;
-    private PerishableItemsModel perishableItemsModel;
-    private PerishableItemIngredientsModel perishableItemIngredientsModel;
-    private UsersModel usersModel;
+//endregion
+//region MODELS
+    private final OutletsModel outletsModel;
+    private final OutletProductsModel outletProductsModel;
+    private final OutletItemsModel outletItemsModel;
+    private final ProductsModel productsModel;
+    private final ProductIngredientsModel productIngredientsModel;
+    private final RawItemsModel rawItemsModel;
+    private final PerishableItemsModel perishableItemsModel;
+    private final PerishableItemIngredientsModel perishableItemIngredientsModel;
+    private final UsersModel usersModel;
+//endregion
+
     public Manager(int userId, int companyId, String username, String companyName) {
         setTitle(String.format("Resto Vision - %s (Manager) - %s", username, companyName));
         setContentPane(mainPanel);
@@ -107,6 +120,8 @@ public class Manager extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
         user = new BE.Manager(userId, companyId);
+        parent = this;
+
         user.getUserData();
         user.getOutletData();
         user.getProductData();
@@ -130,52 +145,6 @@ public class Manager extends JFrame {
         perishableItemIngredientsTable.setModel(perishableItemIngredientsModel);
         usersModel = new UsersModel(user.getUsers());
         usersTable.setModel(usersModel);
-
-//region BUTTONS
-        addOutletButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                NewOutlet dialog = new NewOutlet();
-                dialog.setVisible(true);
-            }
-        });
-        addOutletProductButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AddOutletProduct dialog = new AddOutletProduct();
-                dialog.setVisible(true);
-            }
-        });
-        deleteOutletButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DeleteOutlet dialog = new DeleteOutlet();
-                dialog.setVisible(true);
-            }
-        });
-        deleteOutletProductButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DeleteOutletProduct dialog = new DeleteOutletProduct();
-                dialog.setVisible(true);
-            }
-        });
-        addOutletItemButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AddOutletItem dialog = new AddOutletItem();
-                dialog.setVisible(true);
-            }
-        });
-        deleteOutletItemButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DeleteOutletItem dialog = new DeleteOutletItem();
-                dialog.setVisible(true);
-            }
-        });
-
-//endregion
 
 //region TABLE SELECTION
         // Outlets
@@ -274,7 +243,7 @@ public class Manager extends JFrame {
                 if (selectedPerishableItem != null) {
                     perishableItemNameTextField.setText(selectedPerishableItem.getName());
                     perishableItemUnitTextField.setText(selectedPerishableItem.getUnit());
-                    perishableItemIngredientsModel.setList(selectedPerishableItem.getIngredientList());
+                    perishableItemIngredientsModel.setList(selectedPerishableItem.getIngredients());
                     selectedOutletItem = null;
                     perishableItemIngredientsModel.fireTableDataChanged();
                 } else {
@@ -290,7 +259,7 @@ public class Manager extends JFrame {
         perishableItemIngredientsTable.getSelectionModel().addListSelectionListener(e -> {
             if (!perishableItemIngredientsTable.getSelectionModel().isSelectionEmpty()) {
                 int selectedIndex = perishableItemIngredientsTable.convertRowIndexToModel(perishableItemIngredientsTable.getSelectedRow());
-                selectedPerishableItemIngredient = selectedPerishableItem.getIngredientList().get(selectedIndex);
+                selectedPerishableItemIngredient = selectedPerishableItem.getIngredients().get(selectedIndex);
                 if (selectedPerishableItemIngredient != null) {
                     perishableItemIngredientAmountSpinner.setValue(selectedPerishableItemIngredient.getAmount());
                 } else {
@@ -313,6 +282,91 @@ public class Manager extends JFrame {
 
 
 //endregion
+
+//region BUTTONS
+        addOutletButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NewOutlet dialog = new NewOutlet(parent);
+                dialog.setVisible(true);
+            }
+        });
+        addOutletProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddOutletProduct dialog = new AddOutletProduct(parent, selectedOutlet);
+                dialog.setVisible(true);
+            }
+        });
+        deleteOutletButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedOutlet != null) {
+                    DeleteOutlet dialog = new DeleteOutlet(parent, selectedOutlet);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        deleteOutletProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DeleteOutletProduct dialog = new DeleteOutletProduct();
+                dialog.setVisible(true);
+            }
+        });
+        addOutletItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddOutletItem dialog = new AddOutletItem();
+                dialog.setVisible(true);
+            }
+        });
+        deleteOutletItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DeleteOutletItem dialog = new DeleteOutletItem();
+                dialog.setVisible(true);
+            }
+        });
+        refreshTablesButton1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
+            }
+        });
+        refreshTablesButton3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
+            }
+        });
+        refreshTablesButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
+            }
+        });
+        refreshTablesButton4.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
+            }
+        });
+        refreshTablesButton5.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTables();
+            }
+        });
+        saveEditOutletButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                user.updateOutlet(selectedOutlet, outletNameTextField.getText());
+                updateTables();
+            }
+        });
+//endregion
+
     }
 
 //region TABLE
@@ -646,6 +700,33 @@ public class Manager extends JFrame {
     }
 //endregion
 
+    public void updateTables() {
+        user.getOutletData();
+        user.getProductData();
+        user.getItemData();
+        user.getUserData();
+        selectedOutlet = null;
+        selectedOutletProduct = null;
+        selectedOutletItem = null;
+        selectedProduct = null;
+        selectedProductIngredient = null;
+        selectedRawItem = null;
+        selectedPerishableItem = null;
+        selectedPerishableItemIngredient = null;
+        selectedUser = null;
+        outletsModel.fireTableDataChanged();
+        outletProductsModel.fireTableDataChanged();
+        outletItemsModel.fireTableDataChanged();
+        productsModel.fireTableDataChanged();
+        productIngredientsModel.fireTableDataChanged();
+        rawItemsModel.fireTableDataChanged();
+        perishableItemsModel.fireTableDataChanged();
+        perishableItemIngredientsModel.fireTableDataChanged();
+        usersModel.fireTableDataChanged();
+    }
+
+
+    public BE.Manager getUser() { return user; }
     public static void main(String[] args) {
         String defaultEmail = "djokallaabadi@gmail.com";
 

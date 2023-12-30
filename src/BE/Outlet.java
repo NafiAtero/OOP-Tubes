@@ -59,13 +59,4 @@ public class Outlet {
 
 //endregion
 
-    public void addItem() {
-
-    }
-    public void addProduct(int outletProductId, int productId, String name, int price) {
-        outletProducts.add(new OutletProduct(outletProductId, outletId, productId, companyId, name, price));
-    }
-    public void addOrder() {
-
-    }
 }

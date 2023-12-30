@@ -1,5 +1,7 @@
 package FE.Manager.Outlets;
 
+import FE.Manager.Manager;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -7,16 +9,19 @@ public class NewOutlet extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JTextField textField1;
+    private JTextField outletNameTextField;
     private JCheckBox addAllProductsCheckBox;
+    private Manager parent;
 
-    public NewOutlet() {
+    public NewOutlet(Manager parent) {
         setContentPane(contentPane);
         setModal(true);
         setTitle("New outlet");
         pack();
         setLocationRelativeTo(null);
         getRootPane().setDefaultButton(buttonOK);
+        this.parent = parent;
+        addAllProductsCheckBox.setSelected(true);
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -47,7 +52,8 @@ public class NewOutlet extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        parent.getUser().addOutlet(outletNameTextField.getText(), addAllProductsCheckBox.isSelected(), true);
+        parent.updateTables();
         dispose();
     }
 
@@ -56,10 +62,10 @@ public class NewOutlet extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         NewOutlet dialog = new NewOutlet();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }
