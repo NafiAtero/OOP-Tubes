@@ -2,10 +2,9 @@ package BE;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-
+// TODO UPDATE ITEMS
 public class ManagerDAO {
 
 //region QUERY
@@ -270,37 +269,206 @@ public class ManagerDAO {
 
 //region UPDATE
 //region OUTLETS
-    public static void addOutlet() {}
-    public static void updateOutlet(int outletId, String newOutletName) {}
-    public static void deleteOutlet(int outletId) {}
-    public static void addOutletProduct(int outletId, int productId) {}
-    public static void updateOutletProduct(int outletProductId, int newPriceOverride, boolean newAvailable) {}
-    public static void deleteOutletProduct(int outletProductId) {}
-    public static void addOutletItem(int outletId, int itemId, boolean isPerishable) {}
-    public static void updateOutletItem(int itemId, boolean isPerishable, float newLowLimit, float newCriticalLimit) {}
-    public static void deleteOutletItem(int itemId, boolean isPerishable) {}
+    public static void addOutlet(int companyId, String name, boolean addAllProducts) {
+        String sql = String.format("INSERT INTO outlets (company_id, name, address) VALUES (%d, '%s', '')", companyId, name);
+        JDBC.connect();
+        JDBC.update(sql);
+        if (addAllProducts) {
+            JDBC.query("LAST_INSERT_ID()");
+            ResultSet rs = JDBC.rs;
+            try {
+                rs.next();
+                int outletId = rs.getInt(0);
+
+                sql = String.format("SELECT * FROM products WHERE company_id=%d", companyId);
+                JDBC.query(sql);
+                rs = JDBC.rs;
+
+                while (rs.next()) {
+                    int productId = rs.getInt("id");
+                    sql = String.format("INSERT INTO outlet_product (outlet_id, product_id, price_override, available) VALUES (%d, %d, 0, 1)", outletId, productId);
+                    JDBC.update(sql);
+                }
+            } catch (SQLException err) {
+                System.out.println(err.getMessage());
+                throw new RuntimeException(err);
+            }
+        }
+        JDBC.disconnect();
+    }
+    public static void updateOutlet(int outletId, String newOutletName) {
+        String sql = String.format("UPDATE outlets SET name='%s' WHERE id=%d", newOutletName, outletId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deleteOutlet(int outletId) {
+        String sql = String.format("DELETE FROM outlets WHERE id=%d", outletId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void addOutletProduct(int outletId, int productId, int priceOverride, boolean isAvailable) {
+        String sql = String.format("INSERT INTO outlet_product (outlet_id, product_id, price_override, available) VALUES (%d, %d, %d, %b)", outletId, productId, priceOverride, isAvailable);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void updateOutletProduct(int outletProductId, int newPriceOverride, boolean newAvailable) {
+        String sql = String.format("UPDATE outlet_product SET price_override=%d, available=%b WHERE id=%d", newPriceOverride, newAvailable, outletProductId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deleteOutletProduct(int outletProductId) {
+        String sql = String.format("DELETE FROM outlet_product WHERE id=%d", outletProductId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void addOutletItem(int outletId, int itemId, boolean isPerishable) {
+        String sql = String.format("INSERT INTO outlet_raw_item (outlet_id, raw_item_id, amount) VALUES (%d, %d, 0)", outletId, itemId);
+        if (isPerishable)
+            sql = String.format("INSERT INTO outlet_perishable_item (outlet_id, perishable_item_id, amount) VALUES (%d, %d, 0)", outletId, itemId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void updateOutletItem(int outletItemId, boolean isPerishable, float newLowLimit, float newCriticalLimit) {
+        String sql = String.format("UPDATE outlet_raw_item SET WHERE id=%d", outletItemId);
+        if (isPerishable)
+            sql = String.format("UPDATE outlet_perishable_item SET WHERE id=%d", outletItemId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deleteOutletItem(int outletItemId, boolean isPerishable) {
+        String sql = String.format("DELETE FROM outlet_raw_item WHERE id=%d", outletItemId);
+        if (isPerishable)
+            sql = String.format("DELETE FROM outlet_perishable_item WHERE id=%d", outletItemId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
 //endregion
 //region PRODUCTS
-    public static void addProduct() {}
-    public static void updateProduct(int productId, String newProductName, int newBasePrice) {}
-    public static void deleteProduct(int productId) {}
-    public static void addProductIngredient(int productId, int itemId, boolean isPerishable) {}
-    public static void updateProductIngredient(int productId, int itemId, boolean isPerishable, float newAmount) {}
-    public static void deleteProductIngredient(int productId, int itemId, boolean isPerishable) {}
+    public static void addProduct(int companyId, String name, int price) {
+        String sql = String.format("INSERT INTO products (company_id, name, price) VALUES (%d, '%s', %d)", companyId, name, price);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void updateProduct(int productId, String newProductName, int newBasePrice) {
+        String sql = String.format("UPDATE products SET name='%s', price=%d WHERE id=%d", newProductName, newBasePrice, productId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deleteProduct(int productId) {
+        String sql = String.format("DELETE FROM products WHERE id=%d", productId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void addProductIngredient(int productId, int itemId, float amount, boolean isPerishable) {
+        String sql = String.format("INSERT INTO product_raw_ingredient (product_id, raw_item_id, amount) VALUES (%d, %d, %f)", productId, itemId, amount);
+        if (isPerishable) sql = String.format("INSERT INTO product_perishable_ingredient (product_id, perishable_item_id, amount) VALUES (%d, %d, %f)", productId, itemId, amount);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void updateProductIngredient(int ingredientId, boolean isPerishable, float newAmount) {
+        String sql = String.format("UPDATE product_raw_ingredient SET amount=%f WHERE id=%d", newAmount, ingredientId);
+        if (isPerishable) sql = String.format("UPDATE product_perishable_ingredient SET amount=%f WHERE id=%d", newAmount, ingredientId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deleteProductIngredient(int ingredientId, boolean isPerishable) {
+        String sql = String.format("DELETE FROM product_raw_ingredient WHERE id=%d", ingredientId);
+        if (isPerishable) sql = String.format("DELETE FROM product_perishable_ingredient WHERE id=%d", ingredientId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
 //endregion
 //region ITEMS
-    public static void addItem() {}
-    public static void updateItem(int itemId, boolean isPerishable, String newItemName, String newItemUnit) {}
-    public static void deleteItem(int itemId, boolean isPerishable) {}
-    public static void addPerishableItemIngredient() {}
-    public static void editPerishableItemIngredient(int perishableItemId, float newAmount) {}
-    public static void deletePerishableItemIngredient(int perishableItemId) {}
+    public static void addItem(int companyId, String name, String unit, boolean isPerishable) {
+        String sql = String.format("INSERT INTO raw_items (company_id, name, unit) VALUES (%d, '%s', '%s')", companyId, name, unit);
+        if (isPerishable)
+            sql = String.format("INSERT INTO perishable_items (company_id, name, unit) VALUES (%d, '%s', '%s')", companyId, name, unit);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void updateItem(int itemId, boolean isPerishable, String newItemName, String newItemUnit) {
+        String sql = String.format("UPDATE raw_items SET name='%s', unit='%s' WHERE id=%d", newItemName, newItemUnit, itemId);
+        if (isPerishable)
+            sql = String.format("UPDATE perishable_items SET name='%s', unit='%s' WHERE id=%d", newItemName, newItemUnit, itemId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deleteItem(int itemId, boolean isPerishable) {
+        String sql = String.format("DELETE FROM raw_items WHERE id=%d", itemId);
+        if (isPerishable)
+            sql = String.format("DELETE FROM perishable_items WHERE id=%d", itemId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void addPerishableItemIngredient(int perishableItemId, int rawItemId, float amount) {
+        String sql = String.format("INSERT INTO perishable_item_ingredient (perishable_item_id, raw_item_id, amount) VALUES (%d, %d, %f)", perishableItemId, rawItemId, amount);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void updatePerishableItemIngredient(int ingredientId, float newAmount) {
+        String sql = String.format("UPDATE perishable_item_ingredient SET amount=%f WHERE id=%d", newAmount, ingredientId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void deletePerishableItemIngredient(int ingredientId) {
+        String sql = String.format("DELETE FROM perishable_item_ingredient WHERE id=%d", ingredientId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
 //endregion
 //region COMPANY
-    public static void updateCompany(int companyId, String newCompanyName) {}
-    public static void addUser() {}
-    public static void updateUser(int userId,String newUsername, String newRole, String newOutletId) {}
-    public static void deleteUser(int userId) {}
+    public static void updateCompany(int companyId, String newCompanyName) {
+        String sql = String.format("UPDATE companies SET name='%s' WHERE id=%d", newCompanyName, companyId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
+    public static void addUser(String name, int companyId, String email, String password, String role, int outletId) {
+        String sql = String.format("INSERT INTO users (name, company_id, name, email, password, role) VALUES ('%s', %d, '%s', '%s', '%s')", name, companyId, email, password, role);
+        JDBC.connect();
+        JDBC.update(sql);
+        if (role.equals("kitchen") || role.equals("pos")) {
+            sql = String.format("INSERT INTO pos_kitchen_outlet (user_id, outlet_id) VALUES (LAST_INSERT_ID(), %d)", outletId);
+            JDBC.update(sql);
+        }
+        JDBC.disconnect();
+    }
+    public static void updateUser(int userId,String newName, String newRole, int newOutletId) {
+        String sql = String.format("UPDATE users SET name='%s', role='%s WHERE id=%d", newName, newRole, userId);
+        JDBC.connect();
+        JDBC.update(sql);
+        if (newRole.equals("kitchen") || newRole.equals("pos")) {
+            sql = String.format("UPDATE pos_kitchen_outlet SET outlet_id=%d WHERE user_id=%d", newOutletId, userId);
+            JDBC.update(sql);
+        }
+        JDBC.disconnect();
+    }
+    public static void deleteUser(int userId) {
+        String sql = String.format("DELETE FROM users WHERE id=%d", userId);
+        JDBC.connect();
+        JDBC.update(sql);
+        JDBC.disconnect();
+    }
 //endregion
 //endregion
 
