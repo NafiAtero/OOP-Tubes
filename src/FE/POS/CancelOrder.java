@@ -1,5 +1,7 @@
 package FE.POS;
 
+import BE.Order;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -8,12 +10,14 @@ public class CancelOrder extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private final POS parent;
+    private final Order order;
 
-    public CancelOrder(POS parent) {
+    public CancelOrder(POS parent, Order order) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         this.parent = parent;
+        this.order = order;
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -44,8 +48,8 @@ public class CancelOrder extends JDialog {
     }
 
     private void onOK() {
-        parent.getUser().deleteOrder(parent.getSelectedOrder().getOrderId());
-        parent.refreshTables();
+        parent.getUser().deleteOrder(order);
+        parent.updateTables();
         dispose();
     }
 

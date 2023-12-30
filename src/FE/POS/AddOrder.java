@@ -46,7 +46,7 @@ public class AddOrder extends JDialog {
 
     private void onOK() {
         parent.getUser().addOrder(tableNameTextField.getText());
-        parent.refreshTables();
+        parent.updateTables();
         dispose();
     }
 

@@ -1,5 +1,7 @@
 package FE.POS;
 
+import BE.OrderProduct;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -8,12 +10,14 @@ public class DeleteOrderProduct extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private POS parent;
+    private OrderProduct orderProduct;
 
-    public DeleteOrderProduct(POS parent) {
+    public DeleteOrderProduct(POS parent, OrderProduct orderProduct) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         this.parent = parent;
+        this.orderProduct = orderProduct;
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -44,8 +48,8 @@ public class DeleteOrderProduct extends JDialog {
     }
 
     private void onOK() {
-        parent.getUser().deleteOrderProduct(parent.getSelectedOrderProduct().getOrderProductId());
-        parent.refreshTables();
+        parent.getUser().deleteOrderProduct(orderProduct);
+        parent.updateTables();
         dispose();
     }
 
