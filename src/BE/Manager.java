@@ -10,6 +10,9 @@ public class Manager extends UserController {
     private final List<PerishableItem> perishableItems = new ArrayList<>();
     private final List<Item> items = new ArrayList<>();
     private final List<User> users = new ArrayList<>();
+    public final List<CompletedOrder> completedOrders = new ArrayList<>();
+    public final List<CompletedOrderOutlet> completedOrderOutlets = new ArrayList<>();
+    public final List<CompletedOrderOutletProduct> completedOrderProducts = new ArrayList<>();
     public Manager(int userId, int companyId) {
         super(userId, companyId);
     }
@@ -32,15 +35,59 @@ public class Manager extends UserController {
     public List<User> getUsers() {
         return users;
     }
+    public List<CompletedOrder> getCompletedOrders() {
+        return completedOrders;
+    }
+    public List<CompletedOrderOutlet> getCompletedOrderOutlets() {
+        return completedOrderOutlets;
+    }
+    public List<CompletedOrderOutletProduct> getCompletedOrderProducts() {
+        return completedOrderProducts;
+    }
 
-//region READ
-    /*
-    outlet
-    outlet product
-    outlet item
-    product
-    item
-     */
+    //region READ
+    public void getCompletedOrderData() {
+        completedOrders.clear();
+        completedOrders.addAll(ManagerDAO.getCompletedOrderData(companyId));
+        for (CompletedOrder completedOrder : completedOrders) {
+            completedOrder.getCompletedOrderProducts().clear();
+            completedOrder.getCompletedOrderProducts().addAll(ManagerDAO.getCompletedOrderProductData(completedOrder.getCompletedOrderId()));
+        }
+        completedOrderOutlets.clear();
+        // all orders
+        for (CompletedOrder order: completedOrders) {
+            CompletedOrderOutlet orderOutlet = new CompletedOrderOutlet(order.getOutletName());
+            boolean found = false;
+            // get outlet
+            for (CompletedOrderOutlet outlet: completedOrderOutlets) {
+                if (outlet.getOuletName().equals(order.getOutletName())) {
+                    orderOutlet = outlet;
+                    found = true;
+                    break;
+                }
+            }
+            // not found
+            if (!found) completedOrderOutlets.add(orderOutlet);
+            // products in order
+            for (CompletedOrderProduct product: order.getCompletedOrderProducts()) {
+                orderOutlet.addProduct(product.getProductName(), product.getPrice(), product.getQuantity());
+
+                found = false;
+                for (CompletedOrderOutletProduct productReport: completedOrderProducts) {
+                    if (productReport.getName().equals(product.getProductName())) {
+                        found = true;
+                        productReport.add(product.getPrice(), product.getQuantity());
+                        break;
+                    }
+                }
+                if (!found) {
+                    completedOrderProducts.add(new CompletedOrderOutletProduct(product.getProductName(), product.getPrice(), product.getQuantity()));
+                }
+            }
+            orderOutlet.addOrder();
+        }
+
+    }
     public void getOutletData() {
         outlets.clear();
         outlets.addAll(ManagerDAO.getOutletData(companyId));

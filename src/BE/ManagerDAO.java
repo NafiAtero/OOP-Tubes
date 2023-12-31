@@ -2,12 +2,62 @@ package BE;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 // TODO UPDATE ITEMS
 public class ManagerDAO {
 
 //region QUERY
+//region REPORT
+    public static List<CompletedOrder> getCompletedOrderData(int companyId) {
+        List<CompletedOrder> orders = new ArrayList<>();
+        String sql = "SELECT ord.id AS order_id, ord.outlet_id, ord.table_name, ord.order_completed_time, ord.company_id, otl.name FROM completed_orders ord JOIN outlets otl ON ord.outlet_id=otl.id WHERE ord.company_id="+companyId;
+        JDBC.connect();
+        JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+                int outletId = rs.getInt("outlet_id");
+                String tableName = rs.getString("table_name");
+                Timestamp orderTime = rs.getTimestamp("order_completed_time");
+                //int companyId = rs.getInt("company_id");
+                String outletName = rs.getString("name");
+                CompletedOrder order = new CompletedOrder(orderId, outletId, tableName, orderTime, companyId, outletName);
+                orders.add(order);
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
+        JDBC.disconnect();
+        return orders;
+    }
+    public static List<CompletedOrderProduct> getCompletedOrderProductData(int completedOrderId) {
+        List<CompletedOrderProduct> orders = new ArrayList<>();
+        String sql = "SELECT * FROM completed_order_product WHERE completed_order_id="+completedOrderId;
+        JDBC.connect();
+        JDBC.query(sql);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                int completedOrderProductId = rs.getInt("id");
+                //int completedOrderId = rs.getInt("");
+                String productName = rs.getString("product_name");
+                int price = rs.getInt("price");
+                int quantity = rs.getInt("quantity");
+                CompletedOrderProduct order = new CompletedOrderProduct(completedOrderProductId, completedOrderId, productName, price, quantity);
+                orders.add(order);
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
+        JDBC.disconnect();
+        return orders;
+    }
+//endregion
 //region OUTLETS
     public static List<Outlet> getOutletData(int companyId) {
         List<Outlet> outlets = new ArrayList<>();

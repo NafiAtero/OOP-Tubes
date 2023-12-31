@@ -84,12 +84,22 @@ public class Manager extends JFrame {
     private JButton refreshTablesButton3;
     private JButton refreshTablesButton4;
     private JButton refreshTablesButton5;
+    private JLabel totalItemsSoldLabel;
+    private JLabel totalIncomeLabel;
+    private JLabel outletWithMostItemsSoldLabel;
+    private JLabel outletWithHighestTotalIncomeLabel;
+    private JTable outletReportTable;
+    private JTable productReportTable;
+    private JLabel outletWithMostOrderLabel;
+    private JLabel mostOrderedProductLabel;
+    private JLabel totalOrdersLabel;
 //endregion
 
     private final BE.Manager user;
     private final Manager parent;
 
 //region SELECTED OBJECTS
+    private CompletedOrderOutlet selectedCompletedOrderOutlet;
     private Outlet selectedOutlet;
     private OutletProduct selectedOutletProduct;
     private OutletItem selectedOutletItem;
@@ -101,6 +111,8 @@ public class Manager extends JFrame {
     private User selectedUser;
 //endregion
 //region MODELS
+    private final OutletReportModel outletReportModel;
+    private final ProductReportModel productReportModel;
     private final OutletsModel outletsModel;
     private final OutletProductsModel outletProductsModel;
     private final OutletItemsModel outletItemsModel;
@@ -122,11 +134,16 @@ public class Manager extends JFrame {
         user = new BE.Manager(userId, companyId);
         parent = this;
 
+        user.getCompletedOrderData();
         user.getUserData();
         user.getOutletData();
         user.getProductData();
         user.getItemData();
 
+        outletReportModel = new OutletReportModel(user.getCompletedOrderOutlets());
+        outletReportTable.setModel(outletReportModel);
+        productReportModel = new ProductReportModel(user.getCompletedOrderProducts());
+        productReportTable.setModel(productReportModel);
         outletsModel = new OutletsModel(user.getOutlets());
         outletsTable.setModel(outletsModel);
         outletProductsModel = new OutletProductsModel(new ArrayList<>());
@@ -145,6 +162,41 @@ public class Manager extends JFrame {
         perishableItemIngredientsTable.setModel(perishableItemIngredientsModel);
         usersModel = new UsersModel(user.getUsers());
         usersTable.setModel(usersModel);
+
+        // Report
+        String maxOrderedProduct = "", maxOutletOrder = "", maxOutletProductsSold = "", maxOutletIncome = "";
+        int totalOrders, totalItemsSold = 0, totalIncome = 0, maxOrderedProductCount = 0, maxOutletOrderCount = 0, maxOutletProductsSoldCount = 0, maxOutletIncomeCount = 0;
+        totalOrders = user.getCompletedOrders().size();
+        for (CompletedOrderOutlet orderOutlet: user.getCompletedOrderOutlets()) {
+            totalItemsSold += orderOutlet.getTotalItems();
+            totalIncome += orderOutlet.getTotalIncome();
+            if (maxOutletOrderCount < orderOutlet.getOrderCount()) {
+                maxOutletOrderCount = orderOutlet.getOrderCount();
+                maxOutletOrder = orderOutlet.getOuletName();
+            }
+            if (maxOutletProductsSoldCount < orderOutlet.getTotalItems()) {
+                maxOutletProductsSoldCount = orderOutlet.getTotalItems();
+                maxOutletProductsSold = orderOutlet.getOuletName();
+            }
+            if (maxOutletIncomeCount < orderOutlet.getTotalIncome()) {
+                maxOutletIncomeCount = orderOutlet.getTotalIncome();
+                maxOutletIncome = orderOutlet.getOuletName();
+            }
+        }
+        for (CompletedOrderOutletProduct orderProduct: user.getCompletedOrderProducts()) {
+            if (maxOrderedProductCount < orderProduct.getQuantity()) {
+                maxOrderedProductCount = orderProduct.getQuantity();
+                maxOrderedProduct = orderProduct.getName();
+            }
+        }
+        totalOrdersLabel.setText(""+totalOrders);
+        totalItemsSoldLabel.setText(""+totalItemsSold);
+        totalIncomeLabel.setText(""+totalIncome);
+        mostOrderedProductLabel.setText(String.format("%s (%d)", maxOrderedProduct, maxOrderedProductCount));
+        outletWithMostOrderLabel.setText(String.format("%s (%d)", maxOutletOrder, maxOutletOrderCount));
+        outletWithMostItemsSoldLabel.setText(String.format("%s (%d)", maxOutletProductsSold, maxOutletProductsSoldCount));
+        outletWithHighestTotalIncomeLabel.setText(String.format("%s (%d)", maxOutletIncome, maxOutletIncomeCount));
+
 
 //region TABLE SELECTION
         // Outlets
@@ -370,6 +422,81 @@ public class Manager extends JFrame {
     }
 
 //region TABLE
+    private static class OutletReportModel extends AbstractTableModel {
+        private final String[] COLUMNS = {"Name", "Orders", "Items Sold", "Total Income"};
+        private List<CompletedOrderOutlet> list;
+        public OutletReportModel(List<CompletedOrderOutlet> list) {
+            this.list = list;
+        }
+        public void setList(List<CompletedOrderOutlet> list) {
+            this.list = list;
+        }
+        @Override
+        public int getRowCount() {
+            return list.size();
+        }
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) return list.get(rowIndex).getOuletName();
+            else if (columnIndex == 1) return list.get(rowIndex).getOrderCount();
+            else if (columnIndex == 2) return list.get(rowIndex).getTotalItems();
+            else if (columnIndex == 3) return list.get(rowIndex).getTotalIncome();
+            else return "-";
+        }
+        @Override
+        public String getColumnName(int column) {
+            return COLUMNS[column];
+        }
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (getValueAt(0, columnIndex) != null) {
+                return getValueAt(0, columnIndex).getClass();
+            } else {
+                return Object.class;
+            }
+        }
+    }
+    private static class ProductReportModel extends AbstractTableModel {
+        private final String[] COLUMNS = {"Name", "Total Sold", "Total Price"};
+        private List<CompletedOrderOutletProduct> list;
+        public ProductReportModel(List<CompletedOrderOutletProduct> list) {
+            this.list = list;
+        }
+        public void setList(List<CompletedOrderOutletProduct> list) {
+            this.list = list;
+        }
+        @Override
+        public int getRowCount() {
+            return list.size();
+        }
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) return list.get(rowIndex).getName();
+            else if (columnIndex == 1) return list.get(rowIndex).getQuantity();
+            else if (columnIndex == 2) return list.get(rowIndex).getTotalPrice();
+            else return "-";
+        }
+        @Override
+        public String getColumnName(int column) {
+            return COLUMNS[column];
+        }
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (getValueAt(0, columnIndex) != null) {
+                return getValueAt(0, columnIndex).getClass();
+            } else {
+                return Object.class;
+            }
+        }
+    }
     private static class OutletsModel extends AbstractTableModel {
         private final String[] COLUMNS = {"Name"};
         private List<Outlet> list;
