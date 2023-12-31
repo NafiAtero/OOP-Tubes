@@ -17,6 +17,7 @@ public class Manager extends UserController {
         super(userId, companyId);
     }
 
+//region SETTER GETTER
     public List<Outlet> getOutlets() {
         return outlets;
     }
@@ -44,8 +45,10 @@ public class Manager extends UserController {
     public List<CompletedOrderOutletProduct> getCompletedOrderProducts() {
         return completedOrderProducts;
     }
+//endregion
 
-    //region READ
+//region READ
+
     public void getCompletedOrderData() {
         completedOrders.clear();
         completedOrders.addAll(ManagerDAO.getCompletedOrderData(companyId));
@@ -60,7 +63,7 @@ public class Manager extends UserController {
             boolean found = false;
             // get outlet
             for (CompletedOrderOutlet outlet: completedOrderOutlets) {
-                if (outlet.getOuletName().equals(order.getOutletName())) {
+                if (outlet.getOutletName().equals(order.getOutletName())) {
                     orderOutlet = outlet;
                     found = true;
                     break;

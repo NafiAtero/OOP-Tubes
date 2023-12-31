@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CompletedOrderOutlet {
-    private String ouletName;
+    private String outletName;
     private int orderCount;
     private final List<CompletedOrderOutletProduct> products = new ArrayList<>();
 
-    public CompletedOrderOutlet(String ouletName) {
-        this.ouletName = ouletName;
+    public CompletedOrderOutlet(String outletName) {
+        this.outletName = outletName;
     }
 
-    public String getOuletName() {
-        return ouletName;
+    public String getOutletName() {
+        return outletName;
     }
     public List<CompletedOrderOutletProduct> getCompletedOrderOutletProducts() {
         return products;
@@ -36,6 +36,17 @@ public class CompletedOrderOutlet {
         }
         return total;
     }
+    public CompletedOrderOutletProduct getMostOrderedProduct() {
+        int maxCount = 0;
+        CompletedOrderOutletProduct max = null;
+        for (CompletedOrderOutletProduct product: products) {
+            if (maxCount < product.getQuantity()) {
+                maxCount = product.getQuantity();
+                max = product;
+            }
+        }
+        return max;
+    }
 
     public void addOrder() { orderCount++; }
     public void addProduct(String productName, int price, int quantity) {
@@ -54,5 +65,8 @@ public class CompletedOrderOutlet {
         //System.out.println("count: " + getTotalItems());
     }
 
-
+    @Override
+    public String toString() {
+        return outletName;
+    }
 }

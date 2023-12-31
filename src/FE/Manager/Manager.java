@@ -93,6 +93,17 @@ public class Manager extends JFrame {
     private JLabel outletWithMostOrderLabel;
     private JLabel mostOrderedProductLabel;
     private JLabel totalOrdersLabel;
+    private JTable compareReportTableL;
+    private JTable compareReportTableR;
+    private JButton compareButton;
+    private JLabel mostOrderedProductLabelL;
+    private JLabel mostOrderedProductLabelR;
+    private JLabel totalOrdersLabelR;
+    private JLabel totalOrdersLabelL;
+    private JLabel totalProductsSoldLabelL;
+    private JLabel totalProductsSoldLabelR;
+    private JLabel totalIncomeLabelR;
+    private JLabel totalIncomeLabelL;
 //endregion
 
     private final BE.Manager user;
@@ -112,7 +123,7 @@ public class Manager extends JFrame {
 //endregion
 //region MODELS
     private final OutletReportModel outletReportModel;
-    private final ProductReportModel productReportModel;
+    private final ProductReportModel productReportModel, compareReportModelL, compareReportModelR;
     private final OutletsModel outletsModel;
     private final OutletProductsModel outletProductsModel;
     private final OutletItemsModel outletItemsModel;
@@ -134,6 +145,7 @@ public class Manager extends JFrame {
         user = new BE.Manager(userId, companyId);
         parent = this;
 
+//region TABLE MODED DATA
         user.getCompletedOrderData();
         user.getUserData();
         user.getOutletData();
@@ -144,6 +156,10 @@ public class Manager extends JFrame {
         outletReportTable.setModel(outletReportModel);
         productReportModel = new ProductReportModel(user.getCompletedOrderProducts());
         productReportTable.setModel(productReportModel);
+        compareReportModelL = new ProductReportModel(new ArrayList<>());
+        compareReportTableL.setModel(compareReportModelL);
+        compareReportModelR = new ProductReportModel(new ArrayList<>());
+        compareReportTableR.setModel(compareReportModelR);
         outletsModel = new OutletsModel(user.getOutlets());
         outletsTable.setModel(outletsModel);
         outletProductsModel = new OutletProductsModel(new ArrayList<>());
@@ -162,8 +178,9 @@ public class Manager extends JFrame {
         perishableItemIngredientsTable.setModel(perishableItemIngredientsModel);
         usersModel = new UsersModel(user.getUsers());
         usersTable.setModel(usersModel);
+//endregion
 
-        // Report
+//region REPORT TAB
         String maxOrderedProduct = "", maxOutletOrder = "", maxOutletProductsSold = "", maxOutletIncome = "";
         int totalOrders, totalItemsSold = 0, totalIncome = 0, maxOrderedProductCount = 0, maxOutletOrderCount = 0, maxOutletProductsSoldCount = 0, maxOutletIncomeCount = 0;
         totalOrders = user.getCompletedOrders().size();
@@ -172,15 +189,15 @@ public class Manager extends JFrame {
             totalIncome += orderOutlet.getTotalIncome();
             if (maxOutletOrderCount < orderOutlet.getOrderCount()) {
                 maxOutletOrderCount = orderOutlet.getOrderCount();
-                maxOutletOrder = orderOutlet.getOuletName();
+                maxOutletOrder = orderOutlet.getOutletName();
             }
             if (maxOutletProductsSoldCount < orderOutlet.getTotalItems()) {
                 maxOutletProductsSoldCount = orderOutlet.getTotalItems();
-                maxOutletProductsSold = orderOutlet.getOuletName();
+                maxOutletProductsSold = orderOutlet.getOutletName();
             }
             if (maxOutletIncomeCount < orderOutlet.getTotalIncome()) {
                 maxOutletIncomeCount = orderOutlet.getTotalIncome();
-                maxOutletIncome = orderOutlet.getOuletName();
+                maxOutletIncome = orderOutlet.getOutletName();
             }
         }
         for (CompletedOrderOutletProduct orderProduct: user.getCompletedOrderProducts()) {
@@ -196,7 +213,14 @@ public class Manager extends JFrame {
         outletWithMostOrderLabel.setText(String.format("%s (%d)", maxOutletOrder, maxOutletOrderCount));
         outletWithMostItemsSoldLabel.setText(String.format("%s (%d)", maxOutletProductsSold, maxOutletProductsSoldCount));
         outletWithHighestTotalIncomeLabel.setText(String.format("%s (%d)", maxOutletIncome, maxOutletIncomeCount));
+//endregion
 
+//region COMPARE TAB
+        for (CompletedOrderOutlet outlet: user.getCompletedOrderOutlets()) {
+            compareOutletComboBoxL.addItem(outlet);
+            compareOutletComboBoxR.addItem(outlet);
+        }
+//endregion
 
 //region TABLE SELECTION
         // Outlets
@@ -417,8 +441,28 @@ public class Manager extends JFrame {
                 updateTables();
             }
         });
+        compareButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CompletedOrderOutlet l = (CompletedOrderOutlet) compareOutletComboBoxL.getSelectedItem();
+                CompletedOrderOutlet r = (CompletedOrderOutlet) compareOutletComboBoxR.getSelectedItem();
+                if (l != null && r != null) {
+                    mostOrderedProductLabelL.setText(String.format("%s (%d)", l.getMostOrderedProduct().getName(), l.getMostOrderedProduct().getQuantity()));
+                    mostOrderedProductLabelR.setText(String.format("%s (%d)", r.getMostOrderedProduct().getName(), r.getMostOrderedProduct().getQuantity()));
+                    totalOrdersLabelL.setText(String.valueOf(l.getOrderCount()));
+                    totalOrdersLabelR.setText(String.valueOf(r.getOrderCount()));
+                    totalProductsSoldLabelL.setText(String.valueOf(l.getTotalItems()));
+                    totalProductsSoldLabelR.setText(String.valueOf(r.getTotalItems()));
+                    totalIncomeLabelL.setText(String.valueOf(l.getTotalIncome()));
+                    totalIncomeLabelR.setText(String.valueOf(r.getTotalIncome()));
+                    compareReportModelL.setList(l.getCompletedOrderOutletProducts());
+                    compareReportModelL.fireTableDataChanged();
+                    compareReportModelR.setList(r.getCompletedOrderOutletProducts());
+                    compareReportModelR.fireTableDataChanged();
+                }
+            }
+        });
 //endregion
-
     }
 
 //region TABLE
@@ -441,7 +485,7 @@ public class Manager extends JFrame {
         }
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            if (columnIndex == 0) return list.get(rowIndex).getOuletName();
+            if (columnIndex == 0) return list.get(rowIndex).getOutletName();
             else if (columnIndex == 1) return list.get(rowIndex).getOrderCount();
             else if (columnIndex == 2) return list.get(rowIndex).getTotalItems();
             else if (columnIndex == 3) return list.get(rowIndex).getTotalIncome();
