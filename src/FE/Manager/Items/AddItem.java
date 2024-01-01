@@ -1,30 +1,27 @@
-package FE.Manager.Products;
+package FE.Manager.Items;
 
-import BE.Ingredient;
-import BE.Product;
 import FE.Manager.Manager;
 
 import javax.swing.*;
 import java.awt.event.*;
 
-public class DeleteIngredient extends JDialog {
+public class AddItem extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JLabel label1;
+    private JTextField nameTextField;
+    private JTextField unitTextField;
     private final Manager parent;
-    private final Ingredient ingredient;
-    private final Product product;
+    private final boolean perishable;
 
-    public DeleteIngredient(Manager parent, Ingredient ingredient, Product product) {
+    public AddItem(Manager parent, boolean perishable) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-
+        if (perishable) setTitle("Add Perishable Item");
+        else setTitle("Add Raw Item");
         this.parent = parent;
-        this.ingredient = ingredient;
-        this.product = product;
-        label1.setText("Delete " +ingredient.getName()+ " from " +product.getName()+ " ingredient?");
+        this.perishable = perishable;
         pack();
         setLocationRelativeTo(null);
 
@@ -57,7 +54,7 @@ public class DeleteIngredient extends JDialog {
     }
 
     private void onOK() {
-        parent.getUser().deleteProductIngredient(ingredient);
+        parent.getUser().addItem(nameTextField.getText(), unitTextField.getName(), perishable);
         parent.updateTables();
         dispose();
     }
@@ -67,10 +64,5 @@ public class DeleteIngredient extends JDialog {
         dispose();
     }
 
-    /*public static void main(String[] args) {
-        DeleteIngredient dialog = new DeleteIngredient();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
-    }*/
+
 }

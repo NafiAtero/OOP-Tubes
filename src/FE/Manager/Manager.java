@@ -2,6 +2,8 @@ package FE.Manager;
 
 import BE.*;
 import FE.Kitchen.Kitchen;
+import FE.Manager.Items.AddItem;
+import FE.Manager.Items.DeleteItem;
 import FE.Manager.Outlets.*;
 import FE.Manager.Products.AddIngredient;
 import FE.Manager.Products.AddProduct;
@@ -538,7 +540,31 @@ public class Manager extends JFrame {
                 }
             }
         });
-
+        addRawItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddItem dialog = new AddItem(parent, false);
+                dialog.setVisible(true);
+            }
+        });
+        saveEditRawItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedRawItem != null) {
+                    user.updateItem(selectedRawItem, rawItemNameTextField.getText(), rawItemUnitTextField.getText());
+                    updateTables();
+                }
+            }
+        });
+        deleteRawItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedRawItem != null) {
+                    DeleteItem dialog = new DeleteItem(parent, selectedRawItem, false);
+                    dialog.setVisible(true);
+                }
+            }
+        });
 
 //endregion
 

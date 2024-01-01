@@ -1,32 +1,30 @@
-package FE.Manager.Products;
+package FE.Manager.Items;
 
-import BE.Ingredient;
-import BE.Product;
+import BE.Item;
 import FE.Manager.Manager;
 
 import javax.swing.*;
 import java.awt.event.*;
 
-public class DeleteIngredient extends JDialog {
+public class DeleteItem extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JLabel label1;
     private final Manager parent;
-    private final Ingredient ingredient;
-    private final Product product;
+    private final Item item;
+    private final boolean perishable;
 
-    public DeleteIngredient(Manager parent, Ingredient ingredient, Product product) {
+    public DeleteItem(Manager parent, Item item, boolean perishable) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-
         this.parent = parent;
-        this.ingredient = ingredient;
-        this.product = product;
-        label1.setText("Delete " +ingredient.getName()+ " from " +product.getName()+ " ingredient?");
-        pack();
-        setLocationRelativeTo(null);
+        this.item = item;
+        this.perishable = perishable;
+        if (perishable) setTitle("Delete Perishable Item");
+        else setTitle("Delete Raw Item");
+        label1.setText("Delete " +item.getName()+ "?");
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -57,7 +55,7 @@ public class DeleteIngredient extends JDialog {
     }
 
     private void onOK() {
-        parent.getUser().deleteProductIngredient(ingredient);
+        parent.getUser().deleteItem(item);
         parent.updateTables();
         dispose();
     }
@@ -66,11 +64,4 @@ public class DeleteIngredient extends JDialog {
         // add your code here if necessary
         dispose();
     }
-
-    /*public static void main(String[] args) {
-        DeleteIngredient dialog = new DeleteIngredient();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
-    }*/
 }

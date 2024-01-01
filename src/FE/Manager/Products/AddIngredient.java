@@ -30,6 +30,7 @@ public class AddIngredient extends JDialog {
         this.product = product;
         model = new ItemsModel(parent.getUser().getItems());
         table.setModel(model);
+        setLocationRelativeTo(null);
 
 
         buttonOK.addActionListener(new ActionListener() {
