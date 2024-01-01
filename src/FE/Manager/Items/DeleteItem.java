@@ -25,6 +25,7 @@ public class DeleteItem extends JDialog {
         if (perishable) setTitle("Delete Perishable Item");
         else setTitle("Delete Raw Item");
         label1.setText("Delete " +item.getName()+ "?");
+        pack();
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
