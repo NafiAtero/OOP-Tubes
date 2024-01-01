@@ -26,6 +26,7 @@ public class DeleteItem extends JDialog {
         else setTitle("Delete Raw Item");
         label1.setText("Delete " +item.getName()+ "?");
         pack();
+        setLocationRelativeTo(null);
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
