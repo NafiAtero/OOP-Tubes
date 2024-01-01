@@ -32,12 +32,13 @@ public class Login extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDBC.connect();
-                JDBC.query("SELECT users.id AS user_id, users.company_id, users.role, users.name AS username, companies.name AS company_name FROM users JOIN companies ON users.company_id=companies.id WHERE email='" + emailTextField.getText() + "';");
+                JDBC.query("SELECT users.id AS user_id, users.company_id, users.role, users.name AS username, companies.name AS company_name, password FROM users JOIN companies ON users.company_id=companies.id WHERE email='" + emailTextField.getText() + "';");
                 ResultSet rs = JDBC.rs;
                 try {
                     rs.next();
-
-                    if (rs.getString("password").equals(Arrays.toString(passwordField.getPassword()))) {
+                    String passwordInput = new String(passwordField.getPassword());
+                    System.out.println(passwordInput);
+                    if (!rs.getString("password").equals(passwordInput)) {
                         passwordField.setText("");
                         errorLabel.setText("Wrong password");
                     } else {
