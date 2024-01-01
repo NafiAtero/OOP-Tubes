@@ -104,6 +104,7 @@ public class Manager extends JFrame {
     private JLabel totalProductsSoldLabelR;
     private JLabel totalIncomeLabelR;
     private JLabel totalIncomeLabelL;
+    private JPanel outletInventoryTabPanel;
 //endregion
 
     private final BE.Manager user;
@@ -142,6 +143,7 @@ public class Manager extends JFrame {
         setSize(1366, 768);
         setLocationRelativeTo(null);
         setVisible(true);
+        tabbedPane3.remove(outletInventoryTabPanel);
         user = new BE.Manager(userId, companyId);
         parent = this;
 

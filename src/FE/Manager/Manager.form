@@ -507,13 +507,13 @@
                       </grid>
                     </children>
                   </grid>
-                  <grid id="9e5fd" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="9e5fd" binding="outletInventoryTabPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <tabbedpane title="Inventory"/>
                     </constraints>
                     <properties>
-                      <enabled value="true"/>
+                      <enabled value="false"/>
                     </properties>
                     <border type="none"/>
                     <children>
