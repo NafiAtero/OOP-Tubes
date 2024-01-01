@@ -17,6 +17,7 @@ public class AddPerishableItemIngredient extends JDialog {
     private final Manager parent;
     private final PerishableItem perishableItem;
     private RawItem selectedRawItem;
+    private RawItemsModel rawItemsModel;
 
     public AddPerishableItemIngredient(Manager parent, PerishableItem perishableItem) {
         setContentPane(contentPane);
@@ -27,6 +28,8 @@ public class AddPerishableItemIngredient extends JDialog {
         this.parent = parent;
         this.perishableItem = perishableItem;
         setLocationRelativeTo(null);
+        rawItemsModel = new RawItemsModel(parent.getUser().getRawItems());
+        table.setModel(rawItemsModel);
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -86,10 +89,10 @@ public class AddPerishableItemIngredient extends JDialog {
         dispose();
     }
 
-    private static class rawItemsModel extends AbstractTableModel {
+    private static class RawItemsModel extends AbstractTableModel {
         private final String[] COLUMNS = {"Name", "Unit"};
         private List<RawItem> list;
-        public rawItemsModel(List<RawItem> list) {
+        public RawItemsModel(List<RawItem> list) {
             this.list = list;
         }
         public void setList(List<RawItem> list) {

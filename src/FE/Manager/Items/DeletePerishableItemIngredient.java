@@ -20,7 +20,7 @@ public class DeletePerishableItemIngredient extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setTitle("Delete Perishable Item Ingredient");
-        label.setText("Delete " + ingredient.getName() + " from " + item.getName() + " ingredients?");
+        label.setText("Delete " + ingredient.getName() + " from " + item.getName() + " ingredientss?");
         pack();
         this.parent = parent;
         this.ingredient = ingredient;

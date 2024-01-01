@@ -54,7 +54,7 @@ public class AddItem extends JDialog {
     }
 
     private void onOK() {
-        parent.getUser().addItem(nameTextField.getText(), unitTextField.getName(), perishable);
+        parent.getUser().addItem(nameTextField.getText(), unitTextField.getText(), perishable);
         parent.updateTables();
         dispose();
     }
