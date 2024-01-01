@@ -182,8 +182,8 @@ public class Manager extends UserController {
         ManagerDAO.updateProduct(product.getProductId(), newProductName, newBasePrice);
         getProductData();
     }
-    public void updateProductIngredient(Ingredient ingredient, boolean isPerishable, float newAmount) {
-        ManagerDAO.updateProductIngredient(ingredient.getIngredientId(), isPerishable, newAmount);
+    public void updateProductIngredient(Ingredient ingredient, float newAmount) {
+        ManagerDAO.updateProductIngredient(ingredient.getIngredientId(), ingredient.isPerishable(), newAmount);
         getProductData();
     }
     public void updateItem(Item item, String newItemName, String newItemUnit) {

@@ -3,6 +3,10 @@ package FE.Manager;
 import BE.*;
 import FE.Kitchen.Kitchen;
 import FE.Manager.Outlets.*;
+import FE.Manager.Products.AddIngredient;
+import FE.Manager.Products.AddProduct;
+import FE.Manager.Products.DeleteIngredient;
+import FE.Manager.Products.DeleteProduct;
 import FE.POS.POS;
 
 import javax.swing.*;
@@ -388,8 +392,10 @@ public class Manager extends JFrame {
         deleteOutletProductButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DeleteOutletProduct dialog = new DeleteOutletProduct(parent, selectedOutletProduct);
-                dialog.setVisible(true);
+                if (selectedOutletProduct != null) {
+                    DeleteOutletProduct dialog = new DeleteOutletProduct(parent, selectedOutletProduct);
+                    dialog.setVisible(true);
+                }
             }
         });
         addOutletItemButton.addActionListener(new ActionListener() {
@@ -474,7 +480,69 @@ public class Manager extends JFrame {
                 }
             }
         });
+        addProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddProduct dialog = new AddProduct(parent);
+                dialog.setVisible(true);
+            }
+        });
+        saveEditProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedProduct != null) {
+                    user.updateProduct(selectedProduct, productNameTextField.getText(), (Integer) productBasePriceSpinner.getValue());
+                }
+                updateTables();
+            }
+        });
+        deleteProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedProduct != null) {
+                    DeleteProduct dialog = new DeleteProduct(parent, selectedProduct);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        addProductIngredientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedProduct != null) {
+                    AddIngredient dialog = new AddIngredient(parent, selectedProduct);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        saveEditIngredientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedProduct != null && selectedProductIngredient != null) {
+                    float amount = 0;
+                    Object o = ingredientAmountSpinner.getValue();
+                    if (o != null) {
+                        if (o instanceof Number) {
+                            amount = ((Number) o).floatValue();
+                        }
+                    }
+                    user.updateProductIngredient(selectedProductIngredient, amount);
+                }
+            }
+        });
+        deleteIngredientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedProductIngredient != null && selectedProduct != null) {
+                    DeleteIngredient dialog = new DeleteIngredient(parent, selectedProductIngredient, selectedProduct);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+
+
 //endregion
+
+
     }
 
 //region TABLE
