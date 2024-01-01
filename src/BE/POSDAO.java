@@ -44,9 +44,9 @@ public class POSDAO {
                 int outletProductId = rs.getInt("outlet_product_id");
                 int productId = rs.getInt("product_id");
                 int price = rs.getInt("price");
-                if (rs.getInt("price_override") > 0) price = rs.getInt("price_override");
+                int priceOverride = rs.getInt("price_override");
                 String name = rs.getString("name");
-                OutletProduct outletProduct = new OutletProduct(outletProductId, outletId, productId, companyId, name, price);
+                OutletProduct outletProduct = new OutletProduct(outletProductId, outletId, productId, companyId, name, price, priceOverride);
                 outletProducts.add(outletProduct);
             }
         } catch (SQLException err) {

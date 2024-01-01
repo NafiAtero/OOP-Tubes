@@ -1,5 +1,8 @@
 package FE.Manager.Outlets;
 
+import BE.OutletProduct;
+import FE.Manager.Manager;
+
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -7,13 +10,19 @@ public class DeleteOutletProduct extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private JLabel label;
+    private final Manager parent;
+    private final OutletProduct outletProduct;
 
-    public DeleteOutletProduct() {
+    public DeleteOutletProduct(Manager parent, OutletProduct outletProduct) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setTitle("Delete outlet product?");
         setLocationRelativeTo(null);
+        this.parent = parent;
+        this.outletProduct = outletProduct;
+        label.setText("Delete " +outletProduct.getName()+ " from outlet?");
         pack();
 
         buttonOK.addActionListener(new ActionListener() {
@@ -45,7 +54,8 @@ public class DeleteOutletProduct extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        parent.getUser().deleteOutletProduct(outletProduct);
+        parent.updateTables();
         dispose();
     }
 
@@ -54,10 +64,10 @@ public class DeleteOutletProduct extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         DeleteOutletProduct dialog = new DeleteOutletProduct();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }

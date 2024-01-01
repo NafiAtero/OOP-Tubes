@@ -147,7 +147,7 @@ public class Manager extends JFrame {
         user = new BE.Manager(userId, companyId);
         parent = this;
 
-//region TABLE MODED DATA
+//region TABLE MODEL DATA
         user.getCompletedOrderData();
         user.getUserData();
         user.getOutletData();
@@ -388,7 +388,7 @@ public class Manager extends JFrame {
         deleteOutletProductButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DeleteOutletProduct dialog = new DeleteOutletProduct();
+                DeleteOutletProduct dialog = new DeleteOutletProduct(parent, selectedOutletProduct);
                 dialog.setVisible(true);
             }
         });
@@ -439,8 +439,10 @@ public class Manager extends JFrame {
         saveEditOutletButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                user.updateOutlet(selectedOutlet, outletNameTextField.getText());
-                updateTables();
+                if (selectedOutlet != null) {
+                    user.updateOutlet(selectedOutlet, outletNameTextField.getText());
+                    updateTables();
+                }
             }
         });
         compareButton.addActionListener(new ActionListener() {
@@ -461,6 +463,14 @@ public class Manager extends JFrame {
                     compareReportModelL.fireTableDataChanged();
                     compareReportModelR.setList(r.getCompletedOrderOutletProducts());
                     compareReportModelR.fireTableDataChanged();
+                }
+            }
+        });
+        saveEditOutletProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedOutletProduct != null) {
+                    user.updateOutletProduct(selectedOutletProduct, (Integer) priceOverrideSpinner.getValue(), outletProductAvailableCheckBox.isSelected());
                 }
             }
         });
@@ -579,7 +589,7 @@ public class Manager extends JFrame {
         }
     }
     private static class OutletProductsModel extends AbstractTableModel {
-        private final String[] COLUMNS = {"Name", "Price", "Available"};
+        private final String[] COLUMNS = {"Name", "Base Price", "Price Override", "Available"};
         private List<OutletProduct> list;
         public OutletProductsModel(List<OutletProduct> list) {
             this.list = list;
@@ -598,8 +608,9 @@ public class Manager extends JFrame {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             if (columnIndex == 0) return list.get(rowIndex).getName();
-            else if (columnIndex == 1) return list.get(rowIndex).getPrice();
-            else if (columnIndex == 2) return list.get(rowIndex).isAvailable();
+            else if (columnIndex == 1) return list.get(rowIndex).getBasePrice();
+            else if (columnIndex == 2) return list.get(rowIndex).getPriceOverride();
+            else if (columnIndex == 3) return list.get(rowIndex).isAvailable();
             else return "-";
         }
         @Override
