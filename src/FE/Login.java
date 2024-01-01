@@ -1,5 +1,6 @@
 package FE;
 
+import BE.DatabaseConnection;
 import BE.JDBC;
 import FE.Kitchen.Kitchen;
 import FE.Manager.Manager;
@@ -75,6 +76,11 @@ public class Login extends JFrame {
     }
 
     public static void main(String[] args) {
+        if (args.length == 3) {
+            DatabaseConnection.setDbUrl(args[0]);
+            DatabaseConnection.setDbUser(args[1]);
+            DatabaseConnection.setDbPass(args[2]);
+        }
         new Login();
     }
 }

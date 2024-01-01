@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/resto_vision";
-    private static final String DB_USER = "root";
-    private static final String DB_PASS = "";
+    private static String DB_URL = "jdbc:mysql://localhost:3306/resto_vision";
+    private static String DB_USER = "root";
+    private static String DB_PASS = "";
     private static Connection connection;
 
     public static Connection getConnection() throws SQLException {
@@ -21,5 +21,17 @@ public class DatabaseConnection {
         if (connection != null && !connection.isClosed()) {
             connection.close();
         }
+    }
+
+    public static void setDbUrl(String dbUrl) {
+        DB_URL = "jdbc:mysql://" + dbUrl;
+    }
+
+    public static void setDbUser(String dbUser) {
+        DB_USER = dbUser;
+    }
+
+    public static void setDbPass(String dbPass) {
+        DB_PASS = dbPass;
     }
 }
