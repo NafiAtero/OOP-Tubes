@@ -1,1 +1,3 @@
-add outlet product, ingredient duplicates
+add outlet product, ingredient, per item ingredient duplicates
+limit text field length
+dialog titles

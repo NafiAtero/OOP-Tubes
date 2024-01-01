@@ -3,7 +3,9 @@ package FE.Manager;
 import BE.*;
 import FE.Kitchen.Kitchen;
 import FE.Manager.Items.AddItem;
+import FE.Manager.Items.AddPerishableItemIngredient;
 import FE.Manager.Items.DeleteItem;
+import FE.Manager.Items.DeletePerishableItemIngredient;
 import FE.Manager.Outlets.*;
 import FE.Manager.Products.AddIngredient;
 import FE.Manager.Products.AddProduct;
@@ -561,6 +563,65 @@ public class Manager extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (selectedRawItem != null) {
                     DeleteItem dialog = new DeleteItem(parent, selectedRawItem, false);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        addPerishableItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddItem dialog = new AddItem(parent, true);
+                dialog.setVisible(true);
+            }
+        });
+        saveEditPerishableItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedPerishableItem != null) {
+                    user.updateItem(selectedPerishableItem, perishableItemNameTextField.getText(), perishableItemUnitTextField.getText());
+                    updateTables();
+                }
+            }
+        });
+        deletePerishableItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedPerishableItem != null) {
+                    DeleteItem dialog = new DeleteItem(parent, selectedRawItem, true);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        addPerishableItemIngredientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedPerishableItem != null) {
+                    AddPerishableItemIngredient dialog = new AddPerishableItemIngredient(parent, selectedPerishableItem);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        saveEditPerishableItemIngredientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedPerishableItemIngredient != null) {
+                    float amount = 0;
+                    Object o = perishableItemIngredientAmountSpinner.getValue();
+                    if (o != null) {
+                        if (o instanceof Number) {
+                            amount = ((Number) o).floatValue();
+                        }
+                    }
+                    user.updatePerishableItemIngredient(selectedPerishableItemIngredient, amount);
+                    updateTables();
+                }
+            }
+        });
+        deletePerishableItemIngredientButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedPerishableItem != null && selectedPerishableItemIngredient != null) {
+                    DeletePerishableItemIngredient dialog = new DeletePerishableItemIngredient(parent, selectedPerishableItemIngredient, selectedPerishableItem);
                     dialog.setVisible(true);
                 }
             }
