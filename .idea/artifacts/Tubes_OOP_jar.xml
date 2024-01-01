@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Tubes_OOP:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Tubes_OOP_jar</output-path>
+    <root id="archive" name="Tubes_OOP.jar">
+      <element id="module-output" name="Tubes_OOP" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../School/S5/OOP/mysql-connector-j-8.2.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
