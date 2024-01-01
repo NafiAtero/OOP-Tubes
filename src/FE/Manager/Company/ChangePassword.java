@@ -56,8 +56,8 @@ public class ChangePassword extends JDialog {
     }
 
     private void onOK() {
-        String oldPassword = Arrays.toString(oldPasswordField.getPassword());
-        String newPassword = Arrays.toString(newPasswordField.getPassword());
+        String oldPassword = new String(oldPasswordField.getPassword());
+        String newPassword = new String(newPasswordField.getPassword());
         if (parent.getUser().validatePassword(user, oldPassword)) {
             parent.getUser().updatePassword(user, newPassword);
             dispose();

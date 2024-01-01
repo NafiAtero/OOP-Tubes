@@ -69,7 +69,7 @@ public class NewUser extends JDialog {
     private void onOK() {
         String name = nameTextField.getText();
         String email = emailTextField.getText();
-        String password = Arrays.toString(passwordField.getPassword());
+        String password = new String(passwordField.getPassword());
         String role = (String) roleComboBox.getSelectedItem();
         if (role.equals("Manager")) role = "manager";
         else if (role.equals("POS")) role = "pos";
