@@ -67,10 +67,10 @@ public class DeleteIngredient extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         DeleteIngredient dialog = new DeleteIngredient();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
+    }*/
 }
