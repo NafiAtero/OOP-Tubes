@@ -315,6 +315,22 @@ public class ManagerDAO {
         JDBC.disconnect();
         return users;
     }
+    public static boolean validatePassword(int userId, String password) {
+        Boolean isValid = false;
+        JDBC.connect();
+        JDBC.query("SELECT id, password FROM users WHERE id="+userId);
+        ResultSet rs = JDBC.rs;
+        try {
+            while (rs.next()) {
+                if (rs.getString("password").equals(password)) isValid = true;
+            }
+        } catch (SQLException err) {
+            System.out.println(err.getMessage());
+            throw new RuntimeException(err);
+        }
+        JDBC.disconnect();
+        return isValid;
+    }
 //endregion
 //endregion
 
@@ -512,6 +528,12 @@ public class ManagerDAO {
             sql = String.format("UPDATE pos_kitchen_outlet SET outlet_id=%d WHERE user_id=%d", newOutletId, userId);
             JDBC.update(sql);
         }
+        JDBC.disconnect();
+    }
+    public static void updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE users SET password='"+newPassword+"' WHERE id="+userId;
+        JDBC.connect();
+        JDBC.update(sql);
         JDBC.disconnect();
     }
     public static void deleteUser(int userId) {

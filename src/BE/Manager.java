@@ -197,9 +197,12 @@ public class Manager extends UserController {
     public void updateCompany(String newCompanyName) {
         ManagerDAO.updateCompany(companyId, newCompanyName);
     }
-    public void updateUser(User user, String newName, String newRole, int newOutletId) {
-        ManagerDAO.updateUser(user.getUserId(), newName, newRole, newOutletId);
+    public void updateUser(User user, String newName, String newRole, Outlet outlet) {
+        ManagerDAO.updateUser(user.getUserId(), newName, newRole, outlet.getOutletId());
         getUserData();
+    }
+    public void updatePassword(User user, String newPassword) {
+        ManagerDAO.updatePassword(user.getUserId(), newPassword);
     }
 //endregion
 
@@ -239,5 +242,7 @@ public class Manager extends UserController {
 
 //endregion
 
-
+    public boolean validatePassword(User user, String password) {
+        return ManagerDAO.validatePassword(user.getUserId(), password);
+    }
 }

@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+
 // todo password verification
 public class Login extends JFrame {
     private JLabel Title;
@@ -34,7 +36,8 @@ public class Login extends JFrame {
                 ResultSet rs = JDBC.rs;
                 try {
                     rs.next();
-                    if (rs.getString("password").equals(passwordField.getPassword())) {
+
+                    if (rs.getString("password").equals(Arrays.toString(passwordField.getPassword()))) {
                         passwordField.setText("");
                         errorLabel.setText("Wrong password");
                     } else {

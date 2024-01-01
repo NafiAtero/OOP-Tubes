@@ -2,6 +2,9 @@ package FE.Manager;
 
 import BE.*;
 import FE.Kitchen.Kitchen;
+import FE.Manager.Company.ChangePassword;
+import FE.Manager.Company.DeleteUser;
+import FE.Manager.Company.NewUser;
 import FE.Manager.Items.AddItem;
 import FE.Manager.Items.AddPerishableItemIngredient;
 import FE.Manager.Items.DeleteItem;
@@ -80,7 +83,7 @@ public class Manager extends JFrame {
     private JSpinner perishableItemIngredientAmountSpinner;
     private JButton saveEditPerishableItemIngredientButton;
     private JButton deletePerishableItemIngredientButton;
-    private JButton saveButton1;
+    private JButton saveUserEditButton;
     private JButton deleteUserButton;
     private JTextField usernameTextField;
     private JComboBox userOutletComboBox;
@@ -113,6 +116,7 @@ public class Manager extends JFrame {
     private JLabel totalIncomeLabelR;
     private JLabel totalIncomeLabelL;
     private JPanel outletInventoryTabPanel;
+    private JLabel emailLabel;
 //endregion
 
     private final BE.Manager user;
@@ -230,6 +234,20 @@ public class Manager extends JFrame {
             compareOutletComboBoxL.addItem(outlet);
             compareOutletComboBoxR.addItem(outlet);
         }
+//endregion
+
+//region COMPANY TAB
+        roleComboBox.addItem("Manager");
+        roleComboBox.addItem("POS");
+        roleComboBox.addItem("Kitchen");
+        for (Outlet outlet: user.getOutlets()) userOutletComboBox.addItem(outlet);
+        userOutletComboBox.setEnabled(false);
+        roleComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                userOutletComboBox.setEnabled(!roleComboBox.getSelectedItem().equals("Manager"));
+            }
+        });
 //endregion
 
 //region TABLE SELECTION
@@ -360,8 +378,13 @@ public class Manager extends JFrame {
                 selectedUser = user.getUsers().get(selectedIndex);
                 if (selectedUser != null) {
                     usernameTextField.setText(selectedUser.getName());
+                    emailLabel.setText(selectedUser.getEmail());
+                    if (selectedUser.getRole().equals("manager")) roleComboBox.setSelectedIndex(0);
+                    if (selectedUser.getRole().equals("pos")) roleComboBox.setSelectedIndex(1);
+                    if (selectedUser.getRole().equals("kitchen")) roleComboBox.setSelectedIndex(2);
                 } else {
                     usernameTextField.setText("");
+                    emailLabel.setText("-");
                 }
             }
         });
@@ -622,6 +645,51 @@ public class Manager extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (selectedPerishableItem != null && selectedPerishableItemIngredient != null) {
                     DeletePerishableItemIngredient dialog = new DeletePerishableItemIngredient(parent, selectedPerishableItemIngredient, selectedPerishableItem);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        addNewUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NewUser dialog = new NewUser(parent);
+                dialog.setVisible(true);
+            }
+        });
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                user.updateCompany(companyNameTextField.getText());
+                updateTables();
+            }
+        });
+        saveUserEditButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedUser != null) {
+                    String role = (String) roleComboBox.getSelectedItem();
+                    if (role.equals("Manager")) role = "manager";
+                    else if (role.equals("POS")) role = "pos";
+                    else if (role.equals("Kitchen")) role = "kitchen";
+                    Outlet outlet = (Outlet) userOutletComboBox.getSelectedItem();
+                    user.updateUser(selectedUser, usernameTextField.getText(), role, outlet);
+                }
+            }
+        });
+        changePasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedUser != null) {
+                    ChangePassword dialog = new ChangePassword(parent, selectedUser);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        deleteUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedUser != null) {
+                    DeleteUser dialog = new DeleteUser(parent, selectedUser);
                     dialog.setVisible(true);
                 }
             }

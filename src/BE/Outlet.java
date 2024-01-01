@@ -56,7 +56,10 @@ public class Outlet {
     public List<Order> getActiveOrders() {
         return activeOrders;
     }
-
+    @Override
+    public String toString() {
+        return name;
+    }
 //endregion
 
 }
